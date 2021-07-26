@@ -1,0 +1,3 @@
+frontendedit_api:
+  resource: "@AddicticContaoFrontendEditBundle/Controller/FrontendEditController.php"
+  type: annotation

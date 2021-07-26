@@ -1,0 +1,1 @@
+body.frontendedit .editable{outline:1px dotted rgba(43,137,160,.2);cursor:pointer}body.frontendedit .editable>.editable{padding:1rem}body.frontendedit .editable.hover,body.frontendedit .editable.active{outline:1px solid #2b89a0}body.frontendedit .editable.active{outline-width:2px}body.frontendedit .editable.unsaved{outline-color:#ba2626}

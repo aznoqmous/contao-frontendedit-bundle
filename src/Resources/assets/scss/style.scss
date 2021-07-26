@@ -1,0 +1,22 @@
+$color_blue: #2B89A0;
+$color_red: #BA2626;
+body.frontendedit {
+  .editable {
+    outline: 1px dotted rgba($color_blue, 0.2);
+    cursor: pointer;
+    > .editable {
+      padding: 1rem;
+    }
+  }
+  .editable {
+    &.hover, &.active {
+      outline: 1px solid rgba($color_blue, 1);
+    }
+    &.active {
+      outline-width: 2px;
+    }
+    &.unsaved {
+      outline-color: $color_red;
+    }
+  }
+}

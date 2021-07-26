@@ -1,0 +1,52 @@
+{
+    "name": "addictic/contao-frontend-edit-bundle",
+    "description": "Example of a contao bundle automatically loaded by Contao Manager",
+    "version": "0.0.1",
+    "type": "contao-bundle",
+    "keywords": [
+        "contao",
+        "addictic"
+    ],
+    "authors": [
+        {
+            "name": "Addictic",
+            "homepage": "https://www.addictic.fr"
+        },
+        {
+            "name": "Paul LANDREAU",
+            "email": "plandreau@addictic.fr",
+            "role": "Developer"
+        }
+    ],
+    "support": {
+        "email": "support@addictic.fr"
+    },
+    "require":{
+        "php":"^7.1",
+        "contao/core-bundle":"^4.9"
+    },
+    "require-dev": {
+        "contao/manager-plugin": "^2.0"
+    },
+    "conflict": {
+        "contao/core": "*",
+        "contao/manager-plugin": "<2.0 || >=3.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Addictic\\ContaoFrontendEditBundle\\": "src/"
+        },
+        "classmap": [
+            "src/Resources/contao/"
+        ],
+        "exclude-from-classmap": [
+            "src/Resources/contao/config/",
+            "src/Resources/contao/dca/",
+            "src/Resources/contao/languages/",
+            "src/Resources/contao/templates/"
+        ]
+    },
+    "extra":{
+        "contao-manager-plugin": "Addictic\\ContaoFrontendEditBundle\\ContaoManager\\Plugin"
+    }
+}
