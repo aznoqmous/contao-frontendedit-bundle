@@ -6,6 +6,7 @@ export default class EmbedEditableElement {
         this.type = this.getType()
         this.id = this.getId()
         this.settingsPane = null
+        this.bindElement()
     }
 
     setSettingsPane(element) {
@@ -24,6 +25,56 @@ export default class EmbedEditableElement {
         return type
     }
 
+    save(){
+        let data = new FormData(this.getSettingsForm())
+        fetch(this.getContentPopupUrl(), {
+            method: 'POST',
+            body: data
+        })
+        .then(res => {
+            this.updateSettingsPane(data)
+        })
+        this.updateElement(data, true)
+    }
+
+    bindElement(){
+        this.element.addEventListener('mouseenter', (e) => {
+            FrontendEdit.getAllElements().map(el => el.classList.remove('hover'))
+            this.element.classList.add('hover')
+        })
+        this.element.addEventListener('mouseleave', (e) => {
+            this.element.classList.remove('hover')
+        })
+        this.element.addEventListener('click', (e) => {
+            if (this.element !== e.currentTarget) return null;
+            FrontendEdit.getAllElements().map(el => el.classList.remove('active'))
+            this.element.classList.add('active')
+            this.openSettingsPane(this)
+        })
+
+        let links = [...this.element.querySelectorAll('a[href]')]
+        links.map(l => {
+            l.addEventListener('click', (e)=>{
+                e.preventDefault()
+                window.location.href = l.href
+            })
+        })
+    }
+    fetchContentElementHtml(formData){
+        return fetch(`/api/frontendedit/render/${this.id}`, {
+            method: 'POST',
+            body: formData
+        })
+            .then(res => res.json())
+    }
+    updateElement(data){
+        return this.fetchContentElementHtml(data)
+            .then(res => {
+                this.updateContent(res)
+                this.bindElement()
+                this.element.classList.remove('unsaved')
+            })
+    }
     updateContent(html, saved=false) {
         let div = document.createElement('div')
         div.innerHTML = html
@@ -38,17 +89,12 @@ export default class EmbedEditableElement {
         return updatedElement
     }
 
-    save(){
-        let data = new FormData(this.settingsPane.querySelector('form'))
-        fetch(this.getContentPopupUrl(), {
-            method: 'POST',
-            body: data
-        })
-            .then(res => res.text())
-            .then(html => {
-                this.updateSettingsColumn(html)
-            })
-        this.updateElement(data, true)
+    createSettingsPane(){
+        if(!this.settingsPane) {
+            this.settingsPane = document.createElement('div')
+            FrontendEdit.settingsColumn.appendChild(this.settingsPane)
+            this.updateSettingsPane()
+        }
     }
 
     getContentPopupUrl(){
@@ -56,23 +102,16 @@ export default class EmbedEditableElement {
         return null
     }
 
-    updateElement(data){
-        return this.fetchContentElementHtml(data)
-            .then(res => {
-                this.updateContent(res)
-            })
+    getAPIContentPopupUrl(){
+        if(this.type === 'tl_content') return `/api/frontendedit/form/${this.id}`
+        return null
     }
 
-    fetchContentElementHtml(formData){
-        return fetch(`/api/frontendedit/render/${this.id}`, {
+    updateSettingsPane(data=new FormData()) {
+        return fetch(this.getAPIContentPopupUrl(), {
             method: 'POST',
-            body: formData
+            body: data
         })
-            .then(res => res.json())
-    }
-
-    updateSettingsColumn() {
-        return fetch(this.getContentPopupUrl())
             .then(res => res.text())
             .then(html => {
                 this.settingsPane.innerHTML = html
@@ -81,7 +120,7 @@ export default class EmbedEditableElement {
                     splitButtons.parentElement.removeChild(splitButtons)
                     let tlBoxes = [...this.settingsPane.querySelectorAll('tl_box')]
                     tlBoxes.map(b => b.classList.add('collapsed'))
-                    let form = this.settingsPane.querySelector('form#tl_content')
+                    let form = this.getSettingsForm()
                     this.settingsPane.innerHTML = ''
                     this.settingsPane.appendChild(form)
                     form.addEventListener('submit', (e)=>{
@@ -90,10 +129,21 @@ export default class EmbedEditableElement {
                     })
                     let fields = [...form.querySelectorAll('input,select,textarea,checkbox,radio')]
                     fields.map(f => f.addEventListener('change', ()=>{
-                        let data = new FormData(form)
+                        let data = new FormData(this.getSettingsForm())
                         this.updateElement(data, false)
+                        this.updateSettingsPane(data)
                     }))
+                    FrontendEdit.reloadBackendScripts()
                 }, 10)
             })
+    }
+    openSettingsPane(){
+        if(!this.settingsPane) this.createSettingsPane()
+        FrontendEdit.closeAllSettingsPane()
+        this.settingsPane.style.display = 'block'
+    }
+
+    getSettingsForm(){
+        return this.settingsPane ? this.settingsPane.querySelector('form#tl_content') : null
     }
 }

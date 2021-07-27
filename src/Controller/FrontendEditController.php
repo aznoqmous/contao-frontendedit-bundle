@@ -2,6 +2,7 @@
 
 namespace Addictic\ContaoFrontendEditBundle\Controller;
 
+use Addictic\ContaoFrontendEditBundle\Forms\ContentElementForm;
 use Contao\BackendUser;
 use Contao\ContentElement;
 use Contao\ContentModel;
@@ -11,6 +12,7 @@ use Contao\Database;
 use Contao\FrontendTemplate;
 use Contao\RequestToken;
 use Contao\System;
+use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -35,6 +37,25 @@ class FrontendEditController extends AbstractController
         $strClass = ContentElement::findClass($contentElement->type);
         $objClass = new $strClass($contentElement, "main");
         return $this->json($objClass->generate());
+    }
+
+    /**
+     * @Route("/form/{id}", name="form")
+     */
+    function renderContentElementForm($id){
+        $this->initializeContaoFramework();
+        $request = Request::createFromGlobals();
+        $params = $request->request->all();
+        $contentElement = ContentModel::findById($id);
+        foreach($contentElement->row() as $key => $value){
+            if(array_key_exists($key, $params)) $contentElement->{$key} = $params[$key];
+        }
+        $strClass = ContentElement::findClass($contentElement->type);
+        $objClass = new $strClass($contentElement, "main");
+        $form = new ContentElementForm($contentElement);
+        echo $form->edit($contentElement->id);
+        die;
+        return ;
     }
 
     /**

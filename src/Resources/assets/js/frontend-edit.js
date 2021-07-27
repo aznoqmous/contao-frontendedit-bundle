@@ -6,7 +6,6 @@ export default class FrontendEdit {
         if(window.parent !== window) return null
         this.edit = Cookies.get('frontendedit')
 
-
         if(!this.edit) return this.buildToggleFrontendEdit()
 
         this.rt = null
@@ -36,8 +35,25 @@ export default class FrontendEdit {
         window._rt = value
     }
 
+    static get settingsColumn(){
+        return window._settingsColumn
+    }
+
+    static set settingsColumn(value){
+        window._settingsColumn = value
+    }
+
+    get settingsColumn(){
+        return window._settingsColumn
+    }
+
+    set settingsColumn(value){
+        window._settingsColumn = value
+    }
+
     build() {
         this.iframe = document.createElement('iframe')
+        this.iframe.id = 'frontendedit'
 
         let urlSearch = new URLSearchParams(window.location.search)
         urlSearch.append('frontendedit', 1)
@@ -56,7 +72,7 @@ export default class FrontendEdit {
         this.settingsColumn.style.width = '30vw'
         document.body.appendChild(this.settingsColumn)
 
-        this.addStyleSheets()
+        FrontendEdit.addStyleSheets()
 
         this.iframe.onload = () => {
             this.bindIframe()
@@ -82,9 +98,10 @@ export default class FrontendEdit {
         document.body.appendChild(toggle)
     }
 
-    addStyleSheets(){
+    static addStyleSheets(){
         let stylesheets = [...document.querySelectorAll('link[href],style')]
         stylesheets.map(s => s.remove())
+
         let contaoStyleSheets = [
             'system/themes/flexible/basic.min.css'
         ]
@@ -93,6 +110,13 @@ export default class FrontendEdit {
             link.rel = 'stylesheet'
             link.href = s
             document.head.appendChild(link)
+        })
+    }
+
+    static reloadBackendScripts(){
+        let backendScripts = [...document.head.querySelectorAll('script.be-script')]
+        backendScripts.map(script => {
+            document.head.appendChild(script);
         })
     }
 
@@ -110,34 +134,6 @@ export default class FrontendEdit {
         return [...this.iframe.contentDocument.body.querySelectorAll('.editable')]
     }
 
-    bindEditable(editable){
-        this.bindIframeContentElement(editable)
-    }
-
-    bindIframeContentElement(editable) {
-        editable.element.addEventListener('mouseenter', (e) => {
-            this.getIframeContentElements().map(el => el.classList.remove('hover'))
-            editable.element.classList.add('hover')
-        })
-        editable.element.addEventListener('mouseleave', (e) => {
-            editable.element.classList.remove('hover')
-        })
-        editable.element.addEventListener('click', (e) => {
-            if (editable.element !== e.currentTarget) return null;
-            this.getIframeContentElements().map(el => el.classList.remove('active'))
-            editable.element.classList.add('active')
-            this.openEditableSettings(editable)
-        })
-
-        let links = [...editable.element.querySelectorAll('a[href]')]
-        links.map(l => {
-            l.addEventListener('click', (e)=>{
-                e.preventDefault()
-                window.location.href = l.href
-            })
-        })
-    }
-
     bindIframe() {
         let links = [...this.iframe.contentDocument.querySelectorAll('a[href]')]
         links.map(l => {
@@ -150,17 +146,14 @@ export default class FrontendEdit {
         this.getIframeContentElements().map(el => {
             let editable = new EmbedEditableElement(el)
             this.editables.push(editable)
-            this.bindEditable(editable)
         })
     }
 
-    openEditableSettings(editable){
+    static closeAllSettingsPane(){
         [...this.settingsColumn.children].map(el => el.style.display = 'none')
-        if(!editable.settingsPane) {
-            editable.settingsPane = document.createElement('div')
-            this.settingsColumn.appendChild(editable.settingsPane)
-            editable.updateSettingsColumn()
-        }
-        editable.settingsPane.style.display = 'block'
+    }
+
+    static getAllElements(){
+        return [...document.querySelector('#frontendedit').contentDocument.querySelectorAll('.editable')]
     }
 }

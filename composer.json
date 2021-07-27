@@ -1,5 +1,5 @@
 {
-    "name": "addictic/contao-frontend-edit-bundle",
+    "name": "addictic/contao-frontendedit-bundle",
     "description": "Example of a contao bundle automatically loaded by Contao Manager",
     "version": "0.0.1",
     "type": "contao-bundle",
