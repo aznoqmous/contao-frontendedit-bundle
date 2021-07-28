@@ -45,6 +45,7 @@ export default class EmbedEditableElement extends EditableElement {
             if (!this.isEventTarget(e)) return null
             FrontendEdit.getAllElements().map(el => el.classList.remove('hover'))
             this.element.classList.add('hover')
+            if(!this.settingsPane) this.createSettingsPane()
         })
         this.element.addEventListener('mouseleave', (e) => {
             this.element.classList.remove('hover')
