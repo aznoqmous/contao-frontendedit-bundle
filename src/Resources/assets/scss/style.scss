@@ -2,7 +2,10 @@ $color_blue: #2B89A0;
 $color_red: #BA2626;
 $color_dark: #272727;
 $color_white: #eee;
-
+$settings_bar_height: 3.2rem;
+@mixin button {
+  cursor: pointer;
+}
 body.frontendedit {
   .editable {
     outline: 1px dotted rgba($color_blue, 0.2);
@@ -36,13 +39,13 @@ body.frontendedit-edit-mode {
   > .frontendedit-settings {
     background: $color_dark;
     color: $color_white;
-    height: 3rem;
+    height: $settings_bar_height;
     display: flex;
     > * {
       padding: 1rem;
     }
     .toggle-edit-mode {
-      cursor: pointer;
+      @include button;
       .view {
         display: none;
       }
@@ -58,9 +61,15 @@ body.frontendedit-edit-mode {
         }
       }
     }
+    .page-settings {
+      @include button;
+    }
+    .user-settings {
+      margin-left: auto;
+    }
   }
   > .frontendedit-content-edition {
-    height: calc(100vh - 3rem);
+    height: calc(100vh - #{$settings_bar_height});
     display: flex;
 
     .frontendedit-page-iframe {

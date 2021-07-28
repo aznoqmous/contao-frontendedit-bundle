@@ -27,7 +27,7 @@ body.frontendedit-edit-mode {
 body.frontendedit-edit-mode > .frontendedit-settings {
   background: #272727;
   color: #eee;
-  height: 3rem;
+  height: 3.2rem;
   display: flex;
 }
 body.frontendedit-edit-mode > .frontendedit-settings > * {
@@ -48,8 +48,14 @@ body.frontendedit-edit-mode > .frontendedit-settings .toggle-edit-mode.active .v
 body.frontendedit-edit-mode > .frontendedit-settings .toggle-edit-mode.active .edit {
   display: none;
 }
+body.frontendedit-edit-mode > .frontendedit-settings .page-settings {
+  cursor: pointer;
+}
+body.frontendedit-edit-mode > .frontendedit-settings .user-settings {
+  margin-left: auto;
+}
 body.frontendedit-edit-mode > .frontendedit-content-edition {
-  height: calc(100vh - 3rem);
+  height: calc(100vh - 3.2rem);
   display: flex;
 }
 body.frontendedit-edit-mode > .frontendedit-content-edition .frontendedit-page-iframe {
