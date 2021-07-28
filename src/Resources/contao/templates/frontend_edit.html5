@@ -1,0 +1,28 @@
+<body class="frontendedit-edit-mode">
+    <div class="frontendedit-settings">
+        <div class="toggle-edit-mode">
+            <span class="view"><?= $GLOBALS['TL_LANG']['frontendedit']['view'] ?></span>
+            <span class="edit"><?= $GLOBALS['TL_LANG']['frontendedit']['edit'] ?></span>
+        </div>
+        <div class="page-settings page_<?= $this->page->id ?>">
+            <span>Page :</span>
+            <strong class="page-title">
+                <?= $this->page->title ?>
+            </strong>
+        </div>
+        <div class="user-settings">
+            <span>
+                <?= $GLOBALS['TL_LANG']['frontendedit']['connected_as'] ?>
+            </span>
+            <strong>
+                <?= $this->user->name ?>
+            </strong>
+        </div>
+    </div>
+    <div class="frontendedit-content-edition">
+        <iframe class="frontendedit-page-iframe" data-src="<?= $this->page->getFrontendUrl() ?>?frontendedit" frameborder="0"></iframe>
+        <div class="frontendedit-content-pane">
+
+        </div>
+    </div>
+</body>

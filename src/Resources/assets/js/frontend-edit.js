@@ -1,122 +1,74 @@
 import EmbedEditableElement from "./embed-editable-element";
 import Cookies from "cookies";
+import PageEditableElement from "./page-editable-element";
 
 export default class FrontendEdit {
+
     constructor() {
-        if(window.parent !== window) return null
+        if (window.parent !== window) return null
         this.edit = Cookies.get('frontendedit')
 
-        if(!this.edit) return this.buildToggleFrontendEdit()
-
         this.rt = null
-        this.iframe = null
-        this.settingsColumn = null
+        this.pageIframe = null
+        this.contentPane = null
+
         this.getToken()
             .then(res => {
-                console.log(this.rt)
-                if (res) this.build()
+                if (!res) return null
+                this.build()
             })
         this.editables = []
     }
 
-    static get rt(){
-        return window._rt
-    }
-
-    static set rt(value){
-        window._rt = value
-    }
-
-    get rt(){
-        return window._rt
-    }
-
-    set rt(value){
-        window._rt = value
-    }
-
-    static get settingsColumn(){
-        return window._settingsColumn
-    }
-
-    static set settingsColumn(value){
-        window._settingsColumn = value
-    }
-
-    get settingsColumn(){
-        return window._settingsColumn
-    }
-
-    set settingsColumn(value){
-        window._settingsColumn = value
-    }
-
     build() {
-        this.iframe = document.createElement('iframe')
-        this.iframe.id = 'frontendedit'
+        this.removeAssets()
+        this.removeSymfonyDebugToolbar()
 
-        let urlSearch = new URLSearchParams(window.location.search)
-        urlSearch.append('frontendedit', 1)
+        this.settingsBar = document.querySelector('.frontendedit-settings')
+        this.pageElement = new PageEditableElement(this.settingsBar.querySelector('.page-settings'))
 
-        document.body.innerHTML = ""
-        document.body.style.padding = 0
-        document.body.style.margin = 0
-        document.body.style.display = 'flex'
-
-        this.iframe.src = window.location.origin + "" + window.location.pathname + "?" + urlSearch.toString()
-        this.iframe.style.width = '70vw'
-        this.iframe.style.height = '100vh'
-        document.body.appendChild(this.iframe)
-
-        this.settingsColumn = document.createElement('div')
-        this.settingsColumn.style.width = '30vw'
-        document.body.appendChild(this.settingsColumn)
-
-        FrontendEdit.addStyleSheets()
-
-        this.iframe.onload = () => {
+        this.pageIframe = document.querySelector('.frontendedit-page-iframe')
+        this.pageIframe.onload = () => {
             this.bindIframe()
+            this.pageIframe.classList.add('active')
+            this.editables.map(e => {
+                if(e.settingsPane) e.settingsPane.remove()
+            })
+
+            this.pageElement.updateElement(
+                JSON.parse(
+                    this.pageIframe
+                        .contentDocument
+                        .querySelector('meta[name="frontend-edit-page-info"]')
+                        .content
+                )
+            )
+
+            this.pageElement.updateSettingsPane()
         }
+        this.pageIframe.src = this.pageIframe.getAttribute('data-src')
 
-        this.buildToggleFrontendEdit()
-    }
 
-    buildToggleFrontendEdit(){
-        let toggle = document.createElement('div')
-        toggle.innerHTML = this.edit ? "View" : "Edit"
-        toggle.addEventListener('click', ()=>{
+        this.contentPane = document.querySelector('.frontendedit-content-pane')
+
+        this.toggleMode = this.settingsBar.querySelector('.toggle-edit-mode')
+        if(this.edit) this.toggleMode.classList.add('active')
+        this.toggleMode.addEventListener('click', ()=>{
             Cookies.set('frontendedit', !this.edit)
             window.location.reload()
         })
-        toggle.style.position = 'fixed'
-        toggle.style.left = 0
-        toggle.style.top = 0
-        toggle.style.padding = "10px"
-        toggle.style.background = 'white'
-        toggle.style.zIndex = 10000
-        toggle.style.cursor = 'pointer'
-        document.body.appendChild(toggle)
+
     }
 
-    static addStyleSheets(){
-        let stylesheets = [...document.querySelectorAll('link[href],style')]
-        stylesheets.map(s => s.remove())
-
-        let contaoStyleSheets = [
-            'system/themes/flexible/basic.min.css'
-        ]
-        contaoStyleSheets.map(s => {
-            let link = document.createElement('link')
-            link.rel = 'stylesheet'
-            link.href = s
-            document.head.appendChild(link)
-        })
+    removeSymfonyDebugToolbar(){
+        let sfToolbar = document.querySelector('.sf-toolbar')
+        if(sfToolbar) sfToolbar.remove()
     }
-
-    static reloadBackendScripts(){
-        let backendScripts = [...document.head.querySelectorAll('script.be-script')]
-        backendScripts.map(script => {
-            document.head.appendChild(script);
+    removeAssets() {
+        let assets = [...document.querySelectorAll('link[href],style,script')]
+        assets.map(s => {
+            if(s.href && !s.href.match(/frontend/)) s.remove()
+            if(s.src && !s.src.match(/frontend/)) s.remove()
         })
     }
 
@@ -130,30 +82,102 @@ export default class FrontendEdit {
             })
     }
 
-    getIframeContentElements() {
-        return [...this.iframe.contentDocument.body.querySelectorAll('.editable')]
+    getIframeEditableElements() {
+        return [...this.pageIframe.contentDocument.body.querySelectorAll('.editable')]
     }
 
     bindIframe() {
-        let links = [...this.iframe.contentDocument.querySelectorAll('a[href]')]
+        let links = [...this.pageIframe.contentDocument.querySelectorAll('a[href]')]
         links.map(l => {
-            l.addEventListener('click', (e)=>{
+            l.addEventListener('click', (e) => {
                 e.preventDefault()
-                window.location.href = l.href
+                FrontendEdit.setIframeUrl(l.href)
             })
         })
 
-        this.getIframeContentElements().map(el => {
+        if(this.edit) this.getIframeEditableElements().map(el => {
             let editable = new EmbedEditableElement(el)
             this.editables.push(editable)
         })
     }
 
-    static closeAllSettingsPane(){
-        [...this.settingsColumn.children].map(el => el.style.display = 'none')
+    static closeAllSettingsPane() {
+        [...FrontendEdit.contentPane.children].map(el => el.style.display = 'none')
     }
 
-    static getAllElements(){
-        return [...document.querySelector('#frontendedit').contentDocument.querySelectorAll('.editable')]
+    static clearSettingsPage(){
+        FrontendEdit.contentPane.innerHTML = ''
+    }
+
+    static getAllElements() {
+        return [...this.pageIframe.contentDocument.querySelectorAll('.editable')]
+    }
+
+    static setIframeUrl(url){
+        FrontendEdit.pageIframe.src = url + '?frontendedit'
+    }
+
+    static get rt() {
+        return window._rt
+    }
+
+    static set rt(value) {
+        window._rt = value
+    }
+
+    get rt() {
+        return window._rt
+    }
+
+    set rt(value) {
+        window._rt = value
+    }
+
+    static get pageIframe() {
+        return window._pageIframe
+    }
+
+    static set pageIframe(value) {
+        window._pageIframe = value
+    }
+
+    get pageIframe() {
+        return window._pageIframe
+    }
+
+    set pageIframe(value) {
+        window._pageIframe = value
+    }
+
+    static get contentPane() {
+        return window._contentPane
+    }
+
+    static set contentPane(value) {
+        window._contentPane = value
+    }
+
+    get contentPane() {
+        return window._contentPane
+    }
+
+    set contentPane(value) {
+        window._contentPane = value
+    }
+
+    static get settingsBar() {
+        return window._settingsBar
+    }
+
+    static set settingsBar(value) {
+        window._settingsBar = value
+    }
+
+    get settingsBar() {
+        return window._settingsBar
+    }
+
+    set settingsBar(value) {
+        window._settingsBar = value
     }
 }

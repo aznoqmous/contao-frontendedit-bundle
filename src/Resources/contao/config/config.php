@@ -10,3 +10,4 @@ if(TL_MODE == 'FE' && (BackendUser::getInstance())->id ){
 //        \Addictic\ContaoFrontendEditBundle\Spoofer\BackendSpoofer::getBackendScripts();
 //    }
 }
+

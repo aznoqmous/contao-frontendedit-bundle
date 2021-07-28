@@ -1,0 +1,1 @@
+<meta name="frontend-edit-page-info" content='<?= $this->infos ?>'>

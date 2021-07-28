@@ -10,12 +10,20 @@ use Contao\Controller;
 use Contao\CoreBundle\Controller\AbstractController;
 use Contao\Database;
 use Contao\FrontendTemplate;
+use Contao\PageModel;
+use Contao\PageTree;
 use Contao\RequestToken;
 use Contao\System;
+use Symfony\Cmf\Component\Routing\DynamicRouter;
+use Symfony\Cmf\Component\Routing\Tests\Routing\RequestMatcher;
+use Symfony\Component\Config\Loader\LoaderResolver;
+use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\RouteCollection;
+use Symfony\Component\Routing\Router;
 
 /**
  * Class RelationController
@@ -37,25 +45,6 @@ class FrontendEditController extends AbstractController
         $strClass = ContentElement::findClass($contentElement->type);
         $objClass = new $strClass($contentElement, "main");
         return $this->json($objClass->generate());
-    }
-
-    /**
-     * @Route("/form/{id}", name="form")
-     */
-    function renderContentElementForm($id){
-        $this->initializeContaoFramework();
-        $request = Request::createFromGlobals();
-        $params = $request->request->all();
-        $contentElement = ContentModel::findById($id);
-        foreach($contentElement->row() as $key => $value){
-            if(array_key_exists($key, $params)) $contentElement->{$key} = $params[$key];
-        }
-        $strClass = ContentElement::findClass($contentElement->type);
-        $objClass = new $strClass($contentElement, "main");
-        $form = new ContentElementForm($contentElement);
-        echo $form->edit($contentElement->id);
-        die;
-        return ;
     }
 
     /**

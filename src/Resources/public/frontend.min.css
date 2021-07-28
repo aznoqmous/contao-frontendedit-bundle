@@ -14,3 +14,54 @@ body.frontendedit .editable.active {
 body.frontendedit .editable.unsaved {
   outline-color: #BA2626;
 }
+
+body.frontendedit-edit-mode {
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+}
+body.frontendedit-edit-mode > .frontendedit-settings {
+  background: #272727;
+  color: #eee;
+  height: 3rem;
+  display: flex;
+}
+body.frontendedit-edit-mode > .frontendedit-settings > * {
+  padding: 1rem;
+}
+body.frontendedit-edit-mode > .frontendedit-settings .toggle-edit-mode {
+  cursor: pointer;
+}
+body.frontendedit-edit-mode > .frontendedit-settings .toggle-edit-mode .view {
+  display: none;
+}
+body.frontendedit-edit-mode > .frontendedit-settings .toggle-edit-mode .edit {
+  display: block;
+}
+body.frontendedit-edit-mode > .frontendedit-settings .toggle-edit-mode.active .view {
+  display: block;
+}
+body.frontendedit-edit-mode > .frontendedit-settings .toggle-edit-mode.active .edit {
+  display: none;
+}
+body.frontendedit-edit-mode > .frontendedit-content-edition {
+  height: calc(100vh - 3rem);
+  display: flex;
+}
+body.frontendedit-edit-mode > .frontendedit-content-edition .frontendedit-page-iframe {
+  width: 100%;
+  pointer-events: none;
+  opacity: 0.5;
+}
+body.frontendedit-edit-mode > .frontendedit-content-edition .frontendedit-page-iframe.active {
+  opacity: 1;
+  pointer-events: all;
+}
+body.frontendedit-edit-mode > .frontendedit-content-edition .frontendedit-content-pane > * {
+  width: 30vw;
+  height: 100%;
+}

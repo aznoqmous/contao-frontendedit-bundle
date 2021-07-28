@@ -1,0 +1,17 @@
+[
+  {
+    "name": "content_element",
+    "prefix": "ce_",
+    "table": "tl_content"
+  },
+  {
+    "name": "module",
+    "prefix": "mod_",
+    "table": "tl_module"
+  },
+  {
+    "name": "page",
+    "prefix": "page_",
+    "table": "tl_page"
+  }
+]
