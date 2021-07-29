@@ -8,6 +8,7 @@ export default class EditableElement {
         this.id = this.getId()
         this.settingsPane = null
         this.settingsPaneFirstLoad = true
+        this.saved = true
         this.bindElement()
     }
 
@@ -47,10 +48,14 @@ export default class EditableElement {
             FrontendEdit.contentPane.appendChild(this.settingsPane)
             this.updateSettingsPane()
             this.settingsPane.onload = () => {
-                if(!this.settingsPaneFirstLoad) this.onSettingsPaneReload()
-                if(!this.settingsPaneFirstLoad && this.settingsPaneSubmit) {
-                    this.settingsPaneSubmit = false
-                    this.onSettingsPaneSubmit()
+                if(!this.settingsPaneFirstLoad) {
+                    if(this.settingsPaneSubmit){
+                        this.settingsPaneSubmit = false
+                        this.onSettingsPaneSubmit()
+                    }
+                    else {
+                        this.onSettingsPaneReload()
+                    }
                 }
                 this.bindSettingsPane()
                 this.settingsPaneFirstLoad = false
@@ -69,10 +74,9 @@ export default class EditableElement {
         if(splitButtons) splitButtons.remove()
         let returnButton = this.settingsPane.contentDocument.querySelector('#tl_buttons')
         if(returnButton) returnButton.remove()
-        let settingsForm = this.getSettingsForm()
-        settingsForm.addEventListener('submit', (e)=>{
-            e.preventDefault()
-            settingsForm.submit()
+        let preview = this.settingsPane.contentDocument.querySelector('#pal_preview_legend')
+        if(preview) preview.remove()
+        this.getSettingsForm().addEventListener('submit', (e)=>{
             this.settingsPaneSubmit = true
         })
     }
@@ -85,6 +89,23 @@ export default class EditableElement {
         return null
     }
     onSettingsPaneSubmit(){
+        this.setSaved()
         return null
+    }
+
+    save(){
+        this.settingsPaneSubmit = true
+        this.getSettingsForm().submit()
+        this.setSaved()
+    }
+    setSaved(){
+        this.element.classList.remove('unsaved')
+        this.saved = true
+        FrontendEdit.updateButtons()
+    }
+    setUnsaved(){
+        this.element.classList.add('unsaved')
+        this.saved = false
+        FrontendEdit.updateButtons()
     }
 }

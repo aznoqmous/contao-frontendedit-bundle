@@ -1,5 +1,4 @@
 import FrontendEdit from "./frontend-edit";
-import Types from "./types.json"
 import EditableElement from "./editable-element";
 
 export default class EmbedEditableElement extends EditableElement {
@@ -7,31 +6,18 @@ export default class EmbedEditableElement extends EditableElement {
     constructor(element) {
         super(element)
         this.isParent = this.getIsParent()
+
+        this.updateController = new AbortController()
+        this.timeout = 100
+        this.lastT = Date.now()
     }
 
     getIsParent(){
-        return Types.some(type => this.element.querySelector(`[class*="${type.prefix}"`))
+        return (this.getChildren().length)
     }
 
     getChildren(){
-        let children = []
-        Types.map(type => {
-            let newFounds = [...this.element.querySelectorAll(`[class*="${type.prefix}"`)]
-            if(newFounds) children = children.concat(newFounds)
-        })
-        return children
-    }
-
-    save() {
-        let data = new FormData(this.getSettingsForm())
-        fetch(this.getContentPopupUrl(), {
-            method: 'POST',
-            body: data
-        })
-            .then(res => {
-                this.updateSettingsPane(data)
-            })
-        this.updateElement(data, true)
+        return  [...this.element.querySelectorAll(".editable")]
     }
 
     bindElement() {
@@ -60,11 +46,27 @@ export default class EmbedEditableElement extends EditableElement {
     }
 
     fetchContentElementHtml(formData) {
+        if(Date.now() - this.lastT < this.timeout) {
+            this.updateController.abort()
+            this.updateController = new AbortController()
+        }
+        this.lastT = Date.now()
         return fetch(`/api/frontendedit/render/${this.id}`, {
             method: 'POST',
-            body: formData
+            body: formData,
+            signal: this.updateController.signal
         })
             .then(res => res.json())
+            .catch(e => {/* no abort exception */})
+    }
+
+
+    onSettingsPaneSubmit() {
+        this.updateElement(null, true)
+        super.onSettingsPaneSubmit()
+    }
+    onSettingsPaneReload() {
+        this.updateElement(new FormData(this.getSettingsForm()), false)
     }
 
     updateElement(data, saved=false) {
@@ -72,7 +74,6 @@ export default class EmbedEditableElement extends EditableElement {
             .then(res => {
                 this.updateContent(res, saved)
                 this.bindElement()
-                this.element.classList.remove('unsaved')
             })
     }
 
@@ -80,13 +81,14 @@ export default class EmbedEditableElement extends EditableElement {
         let div = document.createElement('div')
         div.innerHTML = html
         let updatedElement = div.querySelector('*')
-        if (!saved) updatedElement.classList.add('unsaved')
+        if(!updatedElement) return false
         if(this.element.classList.contains('active')) updatedElement.classList.add('active')
         updatedElement.classList.add('editable')
         if(this.isParent) this.getChildren().map(child => updatedElement.appendChild(child))
         this.element.parentElement.insertBefore(updatedElement, this.element)
         this.element.remove()
         this.element = updatedElement
+        if (!saved) this.setUnsaved()
         return updatedElement
     }
 
@@ -105,14 +107,35 @@ export default class EmbedEditableElement extends EditableElement {
         let forms = [...iframe.contentDocument.querySelectorAll('form')]
         forms.map(form => {
             if(form._frontendeditBound) return null
-            this.updateElement(new FormData(this.getSettingsForm()), false)
             let fields = [...form.querySelectorAll('input,select,textarea,checkbox,radio')]
+
             fields.map(f => f.addEventListener('change', () => {
-                let data = new FormData(this.getSettingsForm())
-                this.updateElement(data, false)
-                this.bindSettingsPane()
+                this.updateElement(new FormData(this.getSettingsForm()))
             }))
+            fields.map(f => f.addEventListener('keyup', () => {
+                this.updateElement(new FormData(this.getSettingsForm()))
+            }))
+
+            this.bindTinyMCE(iframe)
             form._frontendeditBound = true
+        })
+    }
+
+    bindTinyMCE(iframe){
+        if(!iframe.contentWindow.tinymce) return null
+        Object.keys(iframe.contentWindow.tinymce.editors).map(k => {
+            if(!k) return null;
+            let editor = iframe.contentWindow.tinymce.editors[k]
+            if(editor._frontendeditBound) return null
+            editor._frontendeditBound = true
+            let textarea = editor.targetElm
+            let tinyIframe = editor.editorContainer.querySelector('iframe');
+            setTimeout(()=>{
+                (new MutationObserver((mutations)=>{
+                    textarea.value = tinyIframe.contentDocument.body.innerHTML
+                    this.updateElement(new FormData(this.getSettingsForm()))
+                })).observe(tinyIframe.contentDocument.body, {childList: true, subtree: true, characterData: true})
+            }, 1000)
         })
     }
 
@@ -126,5 +149,4 @@ export default class EmbedEditableElement extends EditableElement {
         }
         return true
     }
-
 }

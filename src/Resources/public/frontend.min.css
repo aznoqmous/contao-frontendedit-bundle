@@ -23,6 +23,7 @@ body.frontendedit-edit-mode {
   overflow: hidden;
   height: 100vh;
   width: 100vw;
+  font-family: Arial, sans-serif;
 }
 body.frontendedit-edit-mode > .frontendedit-settings {
   background: #272727;
@@ -46,6 +47,14 @@ body.frontendedit-edit-mode > .frontendedit-settings .toggle-edit-mode.active .v
   display: block;
 }
 body.frontendedit-edit-mode > .frontendedit-settings .toggle-edit-mode.active .edit {
+  display: none;
+}
+body.frontendedit-edit-mode > .frontendedit-settings .save,
+body.frontendedit-edit-mode > .frontendedit-settings .cancel {
+  cursor: pointer;
+}
+body.frontendedit-edit-mode > .frontendedit-settings .save:not(.active),
+body.frontendedit-edit-mode > .frontendedit-settings .cancel:not(.active) {
   display: none;
 }
 body.frontendedit-edit-mode > .frontendedit-settings .page-settings {
