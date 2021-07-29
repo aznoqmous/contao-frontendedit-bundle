@@ -10,6 +10,9 @@ export default class EmbedEditableElement extends EditableElement {
         this.updateController = new AbortController()
         this.timeout = 100
         this.lastT = Date.now()
+        this.active = false
+
+        this.buildFloatingSettings()
     }
 
     getIsParent(){
@@ -23,8 +26,10 @@ export default class EmbedEditableElement extends EditableElement {
     bindElement() {
         this.element.addEventListener('click', (e) => {
             if (!this.isEventTarget(e)) return null;
-            FrontendEdit.getAllElements().map(el => el.classList.remove('active'))
-            this.element.classList.add('active')
+            FrontendEdit.editables.map(el => {
+                el.setUnactive()
+            })
+            this.setActive()
             this.openSettingsPane(this)
         })
         this.element.addEventListener('mousemove', (e) => {
@@ -59,7 +64,6 @@ export default class EmbedEditableElement extends EditableElement {
             .then(res => res.json())
             .catch(e => {/* no abort exception */})
     }
-
 
     onSettingsPaneSubmit() {
         this.updateElement(null, true)
@@ -148,5 +152,85 @@ export default class EmbedEditableElement extends EditableElement {
             currentElement = currentElement.parentElement
         }
         return true
+    }
+
+    buildFloatingSettings(){
+        let idocument = FrontendEdit.pageIframe.contentDocument
+        this.floatingSettings = idocument.createElement('div')
+        this.floatingSettings.classList.add('floating-settings')
+
+        this.floatingSettings.deleteButton = document.createElement('button')
+        this.floatingSettings.deleteButton.innerHTML = '✖'
+        this.floatingSettings.deleteButton.onclick = ()=>{
+            if(confirm(`Voulez-vous vraiment supprimer l'élément ID ${this.id} ?`)) this.deleteElement()
+        }
+
+        this.floatingSettings.moveUpButton = document.createElement('button')
+        this.floatingSettings.moveUpButton.innerHTML = '⯅'
+        this.floatingSettings.moveUpButton.addEventListener('click', ()=>{this.moveElementUp()})
+        this.floatingSettings.moveDownButton = document.createElement('button')
+        this.floatingSettings.moveDownButton.innerHTML = '⯆'
+        this.floatingSettings.moveDownButton.addEventListener('click', ()=>{this.moveElementDown()})
+
+        this.floatingSettings.appendChild(this.floatingSettings.moveUpButton)
+        this.floatingSettings.appendChild(this.floatingSettings.deleteButton)
+        this.floatingSettings.appendChild(this.floatingSettings.moveDownButton)
+        //this.floatingSettings.insertButton = document.createElement('button')
+        //this.floatingSettings.insertButton.href = ""
+
+        idocument.body.appendChild(this.floatingSettings)
+    }
+
+    deleteElement(){
+        fetch(`/contao?do=article&table=${this.type.table}&id=${this.id}&act=delete&rt=${FrontendEdit.rt}`)
+            .then(()=>{
+                this.setUnactive()
+                this.element.remove()
+                this.settingsPane.remove()
+            })
+    }
+
+    moveElementUp(){
+        let previousElement = this.getPreviousEditableElement(2)
+        if(!previousElement) return false
+        this.element.parentElement.insertBefore(this.element, this.getPreviousEditableElement().element)
+        this.refreshFloatingSettings()
+        return fetch(`/contao?do=article&table=tl_content&id=${this.id}&act=cut&mode=1&pid=${previousElement.id}&rt=${FrontendEdit.rt}`)
+    }
+    moveElementDown(){
+        let nextElement = this.getNextEditableElement()
+        if(!nextElement) return false
+        this.element.parentElement.insertBefore(nextElement.element, this.element)
+        this.refreshFloatingSettings()
+        return fetch(`/contao?do=article&table=tl_content&id=${this.id}&act=cut&mode=1&pid=${nextElement.id}&rt=${FrontendEdit.rt}`)
+    }
+
+    getPreviousEditableElement(index=1){
+        let elements = FrontendEdit.getAllElements()
+        let previousElement = elements[elements.indexOf(this.element) - index]
+        return previousElement ? previousElement.editable : null
+    }
+    getNextEditableElement(index=1){
+        let elements = FrontendEdit.getAllElements()
+        let nextElement = elements[elements.indexOf(this.element) + index]
+        return nextElement ? nextElement.editable : null
+    }
+
+    refreshFloatingSettings(){
+        let box = this.element.getBoundingClientRect()
+        let fbox = this.floatingSettings.getBoundingClientRect()
+        this.floatingSettings.style.left = box.left - fbox.width + 'px'
+        this.floatingSettings.style.top = box.top + 'px'
+    }
+
+    setActive() {
+        super.setActive();
+        this.refreshFloatingSettings()
+        this.floatingSettings.classList.add('active')
+    }
+
+    setUnactive() {
+        super.setUnactive();
+        this.floatingSettings.classList.remove('active')
     }
 }

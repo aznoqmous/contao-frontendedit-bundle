@@ -30,7 +30,6 @@ export default class PageEditableElement extends EditableElement {
     updateElement(opts={}){
         for(let key in opts) this[key] = opts[key]
         this.element.querySelector('.page-title').innerHTML = this.title
-        window.history.pushState('', '', this.alias)
         document.title = this.title
     }
 }

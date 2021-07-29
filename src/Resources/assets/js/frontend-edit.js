@@ -45,6 +45,21 @@ export default class FrontendEdit {
             )
 
             this.pageElement.updateSettingsPane()
+
+            this.pageIframe.contentWindow.addEventListener('scroll', ()=>{
+                this.editables
+                    .filter(e => e.active)
+                    .map(e => {
+                        e.refreshFloatingSettings()
+                    })
+            })
+            this.pageIframe.contentWindow.addEventListener('resize', ()=>{
+                this.editables
+                    .filter(e => e.active)
+                    .map(e => {
+                        e.refreshFloatingSettings()
+                    })
+            })
         }
         this.pageIframe.src = this.pageIframe.getAttribute('data-src')
 
@@ -140,6 +155,7 @@ export default class FrontendEdit {
 
     static setIframeUrl(url){
         FrontendEdit.pageIframe.src = url + '?frontendedit'
+        window.history.pushState('', '', url)
     }
 
     static get rt() {

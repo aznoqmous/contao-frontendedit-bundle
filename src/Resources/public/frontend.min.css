@@ -1,18 +1,42 @@
 body.frontendedit .editable {
-  outline: 1px dotted rgba(43, 137, 160, 0.2);
+  outline: 1px dotted rgba(238, 238, 238, 0.2);
   cursor: pointer;
 }
 body.frontendedit .editable > .editable {
   padding: 1rem;
 }
 body.frontendedit .editable.hover, body.frontendedit .editable.active {
-  outline: 1px solid #2b89a0;
+  outline: 1px solid #eeeeee;
 }
 body.frontendedit .editable.active {
   outline-width: 2px;
 }
 body.frontendedit .editable.unsaved {
-  outline-color: #BA2626;
+  outline-color: #2B89A0;
+}
+body.frontendedit .floating-settings {
+  position: fixed;
+  opacity: 0;
+  pointer-events: none;
+  background: #eee;
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  transform: translate(-1px, -1px);
+}
+body.frontendedit .floating-settings.active {
+  opacity: 1;
+  pointer-events: all;
+}
+body.frontendedit .floating-settings > * {
+  padding: 0.2rem 0.4rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  color: rgba(39, 39, 39, 0.5);
+}
+body.frontendedit .floating-settings > *:hover {
+  color: #272727;
 }
 
 body.frontendedit-edit-mode {

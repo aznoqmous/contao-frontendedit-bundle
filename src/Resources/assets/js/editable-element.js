@@ -4,6 +4,7 @@ import Types from "./types.json";
 export default class EditableElement {
     constructor(element) {
         this.element = element
+        this.element.editable = this
         this.type = this.getType()
         this.id = this.getId()
         this.settingsPane = null
@@ -107,5 +108,14 @@ export default class EditableElement {
         this.element.classList.add('unsaved')
         this.saved = false
         FrontendEdit.updateButtons()
+    }
+
+    setActive(){
+        this.element.classList.add('active')
+        this.active = true
+    }
+    setUnactive(){
+        this.element.classList.remove('active')
+        this.active = false
     }
 }

@@ -9,6 +9,7 @@ use Contao\ContentModel;
 use Contao\Controller;
 use Contao\CoreBundle\Controller\AbstractController;
 use Contao\Database;
+use Contao\DC_Table;
 use Contao\FrontendTemplate;
 use Contao\PageModel;
 use Contao\PageTree;
@@ -61,4 +62,5 @@ class FrontendEditController extends AbstractController
             ->getValue();
         return $this->json($rt);
     }
+
 }

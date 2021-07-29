@@ -1,6 +1,6 @@
 body.frontendedit {
   .editable {
-    outline: 1px dotted rgba($color_blue, 0.2);
+    outline: $outline_width dotted rgba($color_white, 0.2);
     cursor: pointer;
     > .editable {
       padding: 1rem;
@@ -8,13 +8,38 @@ body.frontendedit {
   }
   .editable {
     &.hover, &.active {
-      outline: 1px solid rgba($color_blue, 1);
+      outline: $outline_width solid rgba($color_white, 1);
     }
     &.active {
       outline-width: 2px;
     }
     &.unsaved {
-      outline-color: $color_red;
+      outline-color: $color_blue;
+    }
+  }
+
+  .floating-settings {
+    position: fixed;
+    opacity: 0;
+    pointer-events: none;
+    background: $color_white;
+    box-shadow: 0 0 2px rgba(0,0,0,0.2);
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    transform: translate(-#{$outline_width}, -#{$outline_width});
+    &.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+    > * {
+      padding: 0.2rem 0.4rem;
+      font-size: 0.8rem;
+      cursor: pointer;
+      color: rgba($color_dark, 0.5);
+      &:hover {
+        color: rgba($color_dark, 1);
+      }
     }
   }
 }
