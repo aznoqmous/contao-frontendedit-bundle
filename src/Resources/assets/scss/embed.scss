@@ -7,6 +7,9 @@ body.frontendedit {
     }
   }
   .editable {
+    &:empty {
+      padding: 1rem;
+    }
     &.hover, &.active {
       outline: $outline_width solid rgba($color_white, 1);
     }
@@ -17,29 +20,29 @@ body.frontendedit {
       outline-color: $color_blue;
     }
   }
-
+  .frontendedit-insert-button {
+    @include tinyButton;
+    margin-bottom: 1rem;
+    position: absolute;
+    z-index: $z_index;
+    transform: translate(0, -50%);
+  }
   .floating-settings {
     position: fixed;
     opacity: 0;
     pointer-events: none;
-    background: $color_white;
-    box-shadow: 0 0 2px rgba(0,0,0,0.2);
-    z-index: 10;
+    z-index: $z_index;
     display: flex;
     flex-direction: column;
     transform: translate(-#{$outline_width}, -#{$outline_width});
+    box-shadow: 0 0 2px rgba(0,0,0,0.2);
     &.active {
       opacity: 1;
       pointer-events: all;
     }
     > * {
-      padding: 0.2rem 0.4rem;
-      font-size: 0.8rem;
-      cursor: pointer;
-      color: rgba($color_dark, 0.5);
-      &:hover {
-        color: rgba($color_dark, 1);
-      }
+      @include tinyButton;
+      box-shadow: none;
     }
   }
 }

@@ -29,7 +29,7 @@ export default class EditableElement {
 
     bindElement() {
         this.element.addEventListener('click', (e) => {
-            this.openSettingsPane(this)
+            this.setActive()
         })
     }
 
@@ -112,6 +112,7 @@ export default class EditableElement {
 
     setActive(){
         this.element.classList.add('active')
+        this.openSettingsPane()
         this.active = true
     }
     setUnactive(){

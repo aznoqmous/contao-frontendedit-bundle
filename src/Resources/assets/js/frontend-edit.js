@@ -28,13 +28,13 @@ export default class FrontendEdit {
         this.pageElement = new PageEditableElement(this.settingsBar.querySelector('.page-settings'))
 
         this.pageIframe = document.querySelector('.frontendedit-page-iframe')
+
         this.pageIframe.onload = () => {
             this.bindIframe()
             this.pageIframe.classList.add('active')
-            this.editables.map(e => {
-                if(e.settingsPane) e.settingsPane.remove()
-            })
-
+            /**
+             * Page element
+             */
             this.pageElement.updateElement(
                 JSON.parse(
                     this.pageIframe
@@ -43,9 +43,11 @@ export default class FrontendEdit {
                         .content
                 )
             )
-
             this.pageElement.updateSettingsPane()
 
+            /**
+             * Editables
+             */
             this.pageIframe.contentWindow.addEventListener('scroll', ()=>{
                 this.editables
                     .filter(e => e.active)
@@ -60,12 +62,14 @@ export default class FrontendEdit {
                         e.refreshFloatingSettings()
                     })
             })
+            this.editables.map(e => {
+                if(e.settingsPane) e.settingsPane.remove()
+            })
+            if(this.edit) this.buildArticleButton()
         }
+
         this.pageIframe.src = this.pageIframe.getAttribute('data-src')
-
-
         this.contentPane = document.querySelector('.frontendedit-content-pane')
-
 
         this.toggleMode = this.settingsBar.querySelector('.toggle-edit-mode')
         if(this.edit) this.toggleMode.classList.add('active')
@@ -82,6 +86,41 @@ export default class FrontendEdit {
             FrontendEdit.updateButtons()
         })
         this.cancelButton = this.settingsBar.querySelector('.cancel')
+    }
+
+    buildArticleButton(){
+        let articles = [...this.pageIframe.contentDocument.querySelectorAll('.mod_article')]
+        articles
+            .filter(article => article.id.match(/article-/))
+            .map(article => {
+                let articleId = article.id.replace(/article-/, '')
+                console.log(article, articleId)
+                let button = document.createElement('button')
+                button.className = "frontendedit-insert-button"
+                button.innerHTML = "✚ Insérer un élément"
+                if( article.children[0]) article.insertBefore(button, article.children[0])
+                else article.appendChild(button)
+
+                button.addEventListener('click', ()=>{
+                    let contentElement = document.createElement('div')
+                    contentElement.className = 'editable'
+                    if( article.children[1]) article.insertBefore(contentElement, article.children[1])
+                    else article.appendChild(contentElement)
+
+                    return fetch(`/contao?do=article&table=tl_content&act=create&mode=2&pid=${articleId}&rt=${FrontendEdit.rt}`)
+                        .then((res)=>{
+                            let url = new URL(res.url)
+                            let id = url.searchParams.get('id')
+                            contentElement.classList.add(`ce_${id}`)
+                            let newEditableElement = new EmbedEditableElement(contentElement)
+                            FrontendEdit.editables.push(newEditableElement)
+                            FrontendEdit.editables.map(e => e.setUnactive())
+                            newEditableElement.setActive()
+                            newEditableElement.setUnsaved()
+                        })
+                })
+
+            })
     }
 
     removeSymfonyDebugToolbar(){

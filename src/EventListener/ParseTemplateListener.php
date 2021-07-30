@@ -21,9 +21,9 @@ class ParseTemplateListener
             $template->class .= " editable ce_{$template->id}";
             $template->hookModified = true;
         }
-        if($template->typePrefix == 'mod_') {
-            $template->class .= " editable mod_{$template->id}";
-            $template->hookModified = true;
-        }
+//        if($template->typePrefix == 'mod_') {
+//            $template->class .= " editable mod_{$template->id}";
+//            $template->hookModified = true;
+//        }
     }
 }

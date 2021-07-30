@@ -6,6 +6,7 @@ use Addictic\ContaoFrontendEditBundle\Forms\ContentElementForm;
 use Contao\BackendUser;
 use Contao\ContentElement;
 use Contao\ContentModel;
+use Contao\ContentText;
 use Contao\Controller;
 use Contao\CoreBundle\Controller\AbstractController;
 use Contao\Database;
@@ -39,11 +40,14 @@ class FrontendEditController extends AbstractController
     function renderContentElement($id){
         $request = Request::createFromGlobals();
         $params = $request->request->all();
+
         $contentElement = ContentModel::findById($id);
+        if(!$contentElement->tstamp) $contentElement->tstamp = time();
         foreach($contentElement->row() as $key => $value){
             if(array_key_exists($key, $params)) $contentElement->{$key} = $params[$key];
         }
         $strClass = ContentElement::findClass($contentElement->type);
+
         $objClass = new $strClass($contentElement, "main");
         return $this->json($objClass->generate());
     }

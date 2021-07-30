@@ -1,5 +1,6 @@
 import FrontendEdit from "./frontend-edit";
 import EditableElement from "./editable-element";
+import RifleRequest from "./rifle-request";
 
 export default class EmbedEditableElement extends EditableElement {
 
@@ -11,6 +12,8 @@ export default class EmbedEditableElement extends EditableElement {
         this.timeout = 100
         this.lastT = Date.now()
         this.active = false
+
+        this.requester = new RifleRequest()
 
         this.buildFloatingSettings()
     }
@@ -51,12 +54,7 @@ export default class EmbedEditableElement extends EditableElement {
     }
 
     fetchContentElementHtml(formData) {
-        if(Date.now() - this.lastT < this.timeout) {
-            this.updateController.abort()
-            this.updateController = new AbortController()
-        }
-        this.lastT = Date.now()
-        return fetch(`/api/frontendedit/render/${this.id}`, {
+        return this.requester.fetch(`/api/frontendedit/render/${this.id}`, {
             method: 'POST',
             body: formData,
             signal: this.updateController.signal
@@ -76,6 +74,7 @@ export default class EmbedEditableElement extends EditableElement {
     updateElement(data, saved=false) {
         return this.fetchContentElementHtml(data)
             .then(res => {
+                if(!res) return null
                 this.updateContent(res, saved)
                 this.bindElement()
             })
@@ -172,9 +171,14 @@ export default class EmbedEditableElement extends EditableElement {
         this.floatingSettings.moveDownButton.innerHTML = '⯆'
         this.floatingSettings.moveDownButton.addEventListener('click', ()=>{this.moveElementDown()})
 
+        this.floatingSettings.insertAfterButton = document.createElement('button')
+        this.floatingSettings.insertAfterButton.innerHTML = '✚'
+        this.floatingSettings.insertAfterButton.addEventListener('click', ()=>{this.insertAfter()})
+
         this.floatingSettings.appendChild(this.floatingSettings.moveUpButton)
-        this.floatingSettings.appendChild(this.floatingSettings.deleteButton)
         this.floatingSettings.appendChild(this.floatingSettings.moveDownButton)
+        this.floatingSettings.appendChild(this.floatingSettings.deleteButton)
+        this.floatingSettings.appendChild(this.floatingSettings.insertAfterButton)
         //this.floatingSettings.insertButton = document.createElement('button')
         //this.floatingSettings.insertButton.href = ""
 
@@ -183,11 +187,9 @@ export default class EmbedEditableElement extends EditableElement {
 
     deleteElement(){
         fetch(`/contao?do=article&table=${this.type.table}&id=${this.id}&act=delete&rt=${FrontendEdit.rt}`)
-            .then(()=>{
-                this.setUnactive()
-                this.element.remove()
-                this.settingsPane.remove()
-            })
+        this.setUnactive()
+        this.element.remove()
+        this.settingsPane.remove()
     }
 
     moveElementUp(){
@@ -205,6 +207,27 @@ export default class EmbedEditableElement extends EditableElement {
         return fetch(`/contao?do=article&table=tl_content&id=${this.id}&act=cut&mode=1&pid=${nextElement.id}&rt=${FrontendEdit.rt}`)
     }
 
+    insertAfter(){
+        let contentElement = document.createElement('div')
+        contentElement.className = 'editable'
+        let nextEditableElement = this.getNextEditableElement()
+        let nextElement = nextEditableElement ? nextEditableElement.element : null
+        if(nextElement) this.element.parentElement.insertBefore(contentElement, nextElement)
+        else this.element.parentElement.appendChild(contentElement)
+
+        return fetch(`/contao?do=article&table=tl_content&act=create&mode=1&pid=${this.id}&rt=${FrontendEdit.rt}`)
+            .then((res)=>{
+                let url = new URL(res.url)
+                let id = url.searchParams.get('id')
+                contentElement.classList.add(`${this.type.prefix}${id}`)
+                let newEditableElement = new EmbedEditableElement(contentElement)
+                FrontendEdit.editables.push(newEditableElement)
+                FrontendEdit.editables.map(e => e.setUnactive())
+                newEditableElement.setActive()
+                newEditableElement.setUnsaved()
+            })
+    }
+
     getPreviousEditableElement(index=1){
         let elements = FrontendEdit.getAllElements()
         let previousElement = elements[elements.indexOf(this.element) - index]
@@ -219,7 +242,9 @@ export default class EmbedEditableElement extends EditableElement {
     refreshFloatingSettings(){
         let box = this.element.getBoundingClientRect()
         let fbox = this.floatingSettings.getBoundingClientRect()
-        this.floatingSettings.style.left = box.left - fbox.width + 'px'
+        let left = box.left - fbox.width
+        left = left > 0 ? left : 0
+        this.floatingSettings.style.left = left + 'px'
         this.floatingSettings.style.top = box.top + 'px'
     }
 
@@ -232,5 +257,11 @@ export default class EmbedEditableElement extends EditableElement {
     setUnactive() {
         super.setUnactive();
         this.floatingSettings.classList.remove('active')
+    }
+
+    remove(){
+        this.settingsPane.remove()
+        this.element.remove()
+        FrontendEdit.editables.splice(FrontendEdit.editables.indexOf(this), 1)
     }
 }
