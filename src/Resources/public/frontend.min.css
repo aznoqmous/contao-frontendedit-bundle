@@ -59,6 +59,15 @@ body.frontendedit .floating-settings > * {
 body.frontendedit .floating-settings > *:hover {
   color: #272727;
 }
+body.frontendedit.hide-scrollbar {
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
+}
+body.frontendedit.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
 
 body.frontendedit-edit-mode {
   padding: 0;
@@ -106,6 +115,23 @@ body.frontendedit-edit-mode > .frontendedit-settings .cancel:not(.active) {
 body.frontendedit-edit-mode > .frontendedit-settings .page-settings {
   cursor: pointer;
 }
+body.frontendedit-edit-mode > .frontendedit-settings .page-iframe-resize select, body.frontendedit-edit-mode > .frontendedit-settings .page-iframe-resize input {
+  background: transparent;
+  color: #ccc;
+  font-size: 0.8rem;
+  border: 1px solid #474747;
+  outline: none;
+}
+body.frontendedit-edit-mode > .frontendedit-settings .page-iframe-resize option {
+  color: #272727;
+}
+body.frontendedit-edit-mode > .frontendedit-settings .page-iframe-resize input {
+  width: 3rem;
+}
+body.frontendedit-edit-mode > .frontendedit-settings .page-iframe-resize span {
+  color: #474747;
+  font-weight: normal;
+}
 body.frontendedit-edit-mode > .frontendedit-settings .user-settings {
   margin-left: auto;
 }
@@ -113,9 +139,16 @@ body.frontendedit-edit-mode > .frontendedit-content-edition {
   height: calc(100vh - 3.2rem);
   display: flex;
 }
+body.frontendedit-edit-mode > .frontendedit-content-edition.resizing .frontendedit-page-iframe-container,
+body.frontendedit-edit-mode > .frontendedit-content-edition.resizing .frontendedit-page-iframe,
+body.frontendedit-edit-mode > .frontendedit-content-edition.resizing .frontendedit-content-pane {
+  user-select: none;
+  pointer-events: none !important;
+}
 body.frontendedit-edit-mode > .frontendedit-content-edition .frontendedit-page-iframe-container {
   width: 100%;
   display: flex;
+  align-items: center;
   justify-content: center;
   background: #272727;
 }
@@ -126,6 +159,7 @@ body.frontendedit-edit-mode > .frontendedit-content-edition .frontendedit-page-i
   pointer-events: none;
   opacity: 0.5;
   background: white;
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.2);
 }
 body.frontendedit-edit-mode > .frontendedit-content-edition .frontendedit-page-iframe-container .frontendedit-page-iframe.active {
   opacity: 1;
@@ -148,10 +182,25 @@ body.frontendedit-edit-mode > .frontendedit-content-edition .frontendedit-col-re
   cursor: col-resize;
 }
 body.frontendedit-edit-mode > .frontendedit-content-edition .frontendedit-content-pane {
+  background: #474747;
+  position: relative;
   z-index: 1;
 }
 body.frontendedit-edit-mode > .frontendedit-content-edition .frontendedit-content-pane.resized > iframe {
   width: 100%;
+}
+body.frontendedit-edit-mode > .frontendedit-content-edition .frontendedit-content-pane > .empty-pane {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #ccc;
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  z-index: -1;
+  overflow: hidden;
 }
 body.frontendedit-edit-mode > .frontendedit-content-edition .frontendedit-content-pane > * {
   height: 100%;

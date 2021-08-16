@@ -2,32 +2,40 @@ body.frontendedit {
   .editable {
     outline: $outline_width dotted rgba($color_white, 0.2);
     cursor: pointer;
+
     > .editable {
       padding: 1rem;
     }
   }
+
   .editable {
     &:empty {
       padding: 1rem;
     }
+
     &.hover, &.active {
       outline: $outline_width solid rgba($color_white, 1);
     }
+
     &.active {
       outline-width: 2px;
     }
+
     &.unsaved {
       outline-color: $color_blue;
     }
+
     a {
       cursor: no-drop;
     }
   }
+
   .frontendedit-insert-button {
     @include tinyButton;
     z-index: $z_index;
     transform: translate(0, -50%);
   }
+
   .floating-settings {
     position: fixed;
     opacity: 0;
@@ -36,14 +44,24 @@ body.frontendedit {
     display: flex;
     flex-direction: column;
     transform: translate(-#{$outline_width}, -#{$outline_width});
-    box-shadow: 0 0 2px rgba(0,0,0,0.2);
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
+
     &.active {
       opacity: 1;
       pointer-events: all;
     }
+
     > * {
       @include tinyButton;
       box-shadow: none;
     }
+  }
+
+  &.hide-scrollbar {
+    &::-webkit-scrollbar {
+      display: none;
+    }
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
   }
 }

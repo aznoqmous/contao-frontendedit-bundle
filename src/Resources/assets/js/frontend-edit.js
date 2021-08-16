@@ -26,10 +26,12 @@ export default class FrontendEdit {
 
         this.settingsBar = document.querySelector('.frontendedit-settings')
         this.pageElement = new PageEditableElement(this.settingsBar.querySelector('.page-settings'))
-        this.buildLayoutSelect()
 
+        this.editionContainer = document.querySelector('.frontendedit-content-edition')
         this.pageIframeContainer = document.querySelector('.frontendedit-page-iframe-container')
         this.pageIframe = document.querySelector('.frontendedit-page-iframe')
+
+        this.buildLayoutSelect()
 
         this.pageIframe.onload = () => {
             this.bindIframe()
@@ -77,16 +79,14 @@ export default class FrontendEdit {
         this.colResize = document.querySelector('.frontendedit-col-resize > hr')
         this.colResize.addEventListener('mousedown', ()=>{
             this.resizing = true
-            this.pageIframe.style.pointerEvents = 'none'
-            this.contentPane.style.pointerEvents = 'none'
+            this.editionContainer.classList.add('resizing')
             let resize = (e)=>{
                 FrontendEdit.resize(e.clientX / window.innerWidth)
             }
             document.addEventListener('mousemove', resize)
             document.addEventListener('mouseup', ()=>{
                 document.removeEventListener('mousemove', resize)
-                this.pageIframe.style.pointerEvents = 'all'
-                this.contentPane.style.pointerEvents = 'all'
+                this.editionContainer.classList.remove('resizing')
             })
         })
 
@@ -108,20 +108,54 @@ export default class FrontendEdit {
     }
 
     buildLayoutSelect(){
+        window.addEventListener('resize', ()=>{
+            FrontendEdit.resize()
+        })
         this.layoutSelect = this.settingsBar.querySelector('.page-iframe-resize [name="layouts"]')
         this.layoutWidth = this.settingsBar.querySelector('[name="width"]')
         this.layoutHeight = this.settingsBar.querySelector('[name="height"]')
         Layouts.map(l => {
-            this.layoutSelect.add(new Option(l.name, l.name))
+            this.layoutSelect.add(new Option(`${l.name} (${l.width}x${l.height})`, l.name))
         })
         this.layoutSelect.addEventListener('change', ()=>{
             let selectedLayout = Layouts.filter(l => l.name === this.layoutSelect.selectedOptions[0].value)
-            if(selectedLayout.length) selectedLayout = selectedLayout[0]
-            else return null
-            this.layoutWidth.value = selectedLayout.width
-            this.layoutHeight.value = selectedLayout.height
-            FrontendEdit.resizePageIframe(selectedLayout.width, selectedLayout.height)
+            this.pageIframe.contentDocument.body.classList.remove('hide-scrollbar')
+            if(selectedLayout.length) {
+                selectedLayout = selectedLayout[0]
+                this.layoutWidth.value = selectedLayout.width
+                this.layoutHeight.value = selectedLayout.height
+                if(selectedLayout.hideScrollbar){
+                    this.pageIframe.contentDocument.body.classList.add('hide-scrollbar')
+                }
+            }
+            FrontendEdit.resizePageIframe()
         })
+
+        let resizeFromValues = ()=>{
+            this.layoutSelect.value = 'custom'
+            FrontendEdit.resizePageIframe(this.layoutWidth.value, this.layoutHeight.value)
+        }
+        this.layoutWidth.addEventListener('change', resizeFromValues.bind(this))
+        this.layoutHeight.addEventListener('change', resizeFromValues.bind(this))
+        FrontendEdit.loadLayout()
+    }
+
+    static saveLayout(){
+        Cookies.set('layout', this.layoutSelect.value)
+        Cookies.set('layoutWidth', this.layoutWidth.value)
+        Cookies.set('layoutHeight', this.layoutHeight.value)
+    }
+
+    static loadLayout(){
+        let savedLayout = Cookies.get('layout')
+        if(savedLayout) {
+            this.layoutSelect.value = savedLayout
+            if(savedLayout !== 'screen'){
+                this.layoutWidth.value = Cookies.get('layoutWidth')
+                this.layoutHeight.value = Cookies.get('layoutHeight')
+            }
+        }
+        FrontendEdit.resizePageIframe()
     }
 
     /**
@@ -134,16 +168,38 @@ export default class FrontendEdit {
         this.pageIframeContainer.style.width = pageIframeRatio * 100 + '%'
         this.contentPane.style.width = (1 - pageIframeRatio) * 100 + '%'
         this.contentPane.classList.add('resized')
+        FrontendEdit.resizePageIframe()
     }
 
     /**
      * Resize pageIframe to specific width/height
      */
-    static resizePageIframe(width, height){
-        this.pageIframe.style.width = width + 'px'
-        this.pageIframe.style.height = height + 'px'
-        let scale = this.pageIframeContainer.getBoundingClientRect().width / width
-        this.pageIframe.style.transform = `scale(${scale})`
+    static resizePageIframe(width=null, height=null){
+        let pageIframeContainerBox = this.pageIframeContainer.getBoundingClientRect()
+
+        if(FrontendEdit.layoutSelect.value === 'screen'){
+            FrontendEdit.pageIframe.removeAttribute('style')
+            FrontendEdit.pageIframe.style.width = pageIframeContainerBox.width + 'px'
+            FrontendEdit.pageIframe.style.height = pageIframeContainerBox.height + 'px'
+            FrontendEdit.layoutWidth.value = Math.floor(pageIframeContainerBox.width)
+            FrontendEdit.layoutHeight.value = Math.floor(pageIframeContainerBox.height)
+            FrontendEdit.saveLayout()
+            return null
+        }
+
+        if(!width) width = FrontendEdit.layoutWidth.value
+        if(!height) height = FrontendEdit.layoutHeight.value
+
+        FrontendEdit.pageIframe.style.width = width + 'px'
+        FrontendEdit.pageIframe.style.height = height + 'px'
+        let pageIframeContainerRatio = pageIframeContainerBox.width / pageIframeContainerBox.height
+        let pageIframeRatio = width/height
+        let widthScale = (pageIframeContainerBox.width - 32) / width
+        let heightScale =  (pageIframeContainerBox.height - 32) / height
+        let scale = pageIframeRatio > pageIframeContainerRatio ? widthScale : heightScale
+        FrontendEdit.pageIframe.style.transform = `scale(${scale})`
+
+        FrontendEdit.saveLayout()
     }
 
     buildArticleButton(){
@@ -239,7 +295,7 @@ export default class FrontendEdit {
     }
 
     static closeAllSettingsPane() {
-        [...FrontendEdit.contentPane.children].map(el => el.style.display = 'none')
+        [...FrontendEdit.contentPane.querySelectorAll('iframe')].map(el => el.style.display = 'none')
     }
 
     static clearSettingsPage(){
@@ -334,6 +390,54 @@ export default class FrontendEdit {
 
     set settingsBar(value) {
         window._settingsBar = value
+    }
+
+    static get layoutSelect() {
+        return window._layoutSelect
+    }
+
+    static set layoutSelect(value) {
+        window._layoutSelect = value
+    }
+
+    get layoutSelect() {
+        return window._layoutSelect
+    }
+
+    set layoutSelect(value) {
+        window._layoutSelect = value
+    }
+
+    static get layoutWidth() {
+        return window._layoutWidth
+    }
+
+    static set layoutWidth(value) {
+        window._layoutWidth = value
+    }
+
+    get layoutWidth() {
+        return window._layoutWidth
+    }
+
+    set layoutWidth(value) {
+        window._layoutWidth = value
+    }
+
+    static get layoutHeight() {
+        return window._layoutHeight
+    }
+
+    static set layoutHeight(value) {
+        window._layoutHeight = value
+    }
+
+    get layoutHeight() {
+        return window._layoutHeight
+    }
+
+    set layoutHeight(value) {
+        window._layoutHeight = value
     }
 
     static get editables() {

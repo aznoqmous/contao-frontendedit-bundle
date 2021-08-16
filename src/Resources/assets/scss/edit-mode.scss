@@ -54,6 +54,29 @@ body.frontendedit-edit-mode {
       @include button;
     }
 
+    .page-iframe-resize {
+      select, input {
+        background: transparent;
+        color: $color_lighter;
+        font-size: 0.8rem;
+        border: 1px solid $color_lighter_dark;
+        outline: none;
+      }
+
+      option {
+        color: $color_dark;
+      }
+
+      input {
+        width: 3rem;
+      }
+
+      span {
+        color: $color_lighter_dark;
+        font-weight: normal;
+      }
+    }
+
     .user-settings {
       margin-left: auto;
     }
@@ -63,11 +86,22 @@ body.frontendedit-edit-mode {
     height: calc(100vh - #{$settings_bar_height});
     display: flex;
 
+    &.resizing {
+      .frontendedit-page-iframe-container,
+      .frontendedit-page-iframe,
+      .frontendedit-content-pane {
+        user-select: none;
+        pointer-events: none !important;
+      }
+    }
+
     .frontendedit-page-iframe-container {
       width: 100%;
       display: flex;
+      align-items: center;
       justify-content: center;
       background: $color_dark;
+
       .frontendedit-page-iframe {
         position: absolute;
         width: 100%;
@@ -75,6 +109,7 @@ body.frontendedit-edit-mode {
         pointer-events: none;
         opacity: 0.5;
         background: white;
+        box-shadow: 0 1rem 3rem rgb(0 0 0 / 20%);
 
         &.active {
           opacity: 1;
@@ -87,6 +122,7 @@ body.frontendedit-edit-mode {
       position: relative;
       height: 100%;
       z-index: 10;
+
       > hr {
         position: absolute;
         top: 0;
@@ -101,11 +137,28 @@ body.frontendedit-edit-mode {
     }
 
     .frontendedit-content-pane {
+      background: $color_lighter_dark;
+      position: relative;
       z-index: 1;
+
       &.resized {
         > iframe {
           width: 100%;
         }
+      }
+
+      > .empty-pane {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: $color_lighter;
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 100%;
+        z-index: -1;
+        overflow: hidden;
       }
 
       > * {
