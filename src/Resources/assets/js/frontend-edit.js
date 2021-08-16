@@ -1,13 +1,13 @@
 import EmbedEditableElement from "./embed-editable-element";
 import Cookies from "cookies";
 import PageEditableElement from "./page-editable-element";
+import Layouts from './layouts.json'
 
 export default class FrontendEdit {
 
     constructor() {
         if (window.parent !== window) return null
         this.edit = Cookies.get('frontendedit')
-
         this.rt = null
         this.pageIframe = null
         this.contentPane = null
@@ -26,7 +26,9 @@ export default class FrontendEdit {
 
         this.settingsBar = document.querySelector('.frontendedit-settings')
         this.pageElement = new PageEditableElement(this.settingsBar.querySelector('.page-settings'))
+        this.buildLayoutSelect()
 
+        this.pageIframeContainer = document.querySelector('.frontendedit-page-iframe-container')
         this.pageIframe = document.querySelector('.frontendedit-page-iframe')
 
         this.pageIframe.onload = () => {
@@ -71,6 +73,23 @@ export default class FrontendEdit {
         this.pageIframe.src = this.pageIframe.getAttribute('data-src')
         this.contentPane = document.querySelector('.frontendedit-content-pane')
 
+        this.resizing = false
+        this.colResize = document.querySelector('.frontendedit-col-resize > hr')
+        this.colResize.addEventListener('mousedown', ()=>{
+            this.resizing = true
+            this.pageIframe.style.pointerEvents = 'none'
+            this.contentPane.style.pointerEvents = 'none'
+            let resize = (e)=>{
+                FrontendEdit.resize(e.clientX / window.innerWidth)
+            }
+            document.addEventListener('mousemove', resize)
+            document.addEventListener('mouseup', ()=>{
+                document.removeEventListener('mousemove', resize)
+                this.pageIframe.style.pointerEvents = 'all'
+                this.contentPane.style.pointerEvents = 'all'
+            })
+        })
+
         this.toggleMode = this.settingsBar.querySelector('.toggle-edit-mode')
         if(this.edit) this.toggleMode.classList.add('active')
         this.toggleMode.addEventListener('click', ()=>{
@@ -88,13 +107,51 @@ export default class FrontendEdit {
         this.cancelButton = this.settingsBar.querySelector('.cancel')
     }
 
+    buildLayoutSelect(){
+        this.layoutSelect = this.settingsBar.querySelector('.page-iframe-resize [name="layouts"]')
+        this.layoutWidth = this.settingsBar.querySelector('[name="width"]')
+        this.layoutHeight = this.settingsBar.querySelector('[name="height"]')
+        Layouts.map(l => {
+            this.layoutSelect.add(new Option(l.name, l.name))
+        })
+        this.layoutSelect.addEventListener('change', ()=>{
+            let selectedLayout = Layouts.filter(l => l.name === this.layoutSelect.selectedOptions[0].value)
+            if(selectedLayout.length) selectedLayout = selectedLayout[0]
+            else return null
+            this.layoutWidth.value = selectedLayout.width
+            this.layoutHeight.value = selectedLayout.height
+            FrontendEdit.resizePageIframe(selectedLayout.width, selectedLayout.height)
+        })
+    }
+
+    /**
+     * Column resize between pageIframe and content edition pane
+     */
+    static resize(pageIframeRatio=null){
+        if(!pageIframeRatio) pageIframeRatio = Cookies.get('resizedPageIframeRatio')
+        else Cookies.set('resizedPageIframeRatio', pageIframeRatio)
+        if(!pageIframeRatio) return null
+        this.pageIframeContainer.style.width = pageIframeRatio * 100 + '%'
+        this.contentPane.style.width = (1 - pageIframeRatio) * 100 + '%'
+        this.contentPane.classList.add('resized')
+    }
+
+    /**
+     * Resize pageIframe to specific width/height
+     */
+    static resizePageIframe(width, height){
+        this.pageIframe.style.width = width + 'px'
+        this.pageIframe.style.height = height + 'px'
+        let scale = this.pageIframeContainer.getBoundingClientRect().width / width
+        this.pageIframe.style.transform = `scale(${scale})`
+    }
+
     buildArticleButton(){
         let articles = [...this.pageIframe.contentDocument.querySelectorAll('.mod_article')]
         articles
             .filter(article => article.id.match(/article-/))
             .map(article => {
                 let articleId = article.id.replace(/article-/, '')
-                console.log(article, articleId)
                 let button = document.createElement('button')
                 button.className = "frontendedit-insert-button"
                 button.innerHTML = "✚ Insérer un élément"
@@ -153,6 +210,7 @@ export default class FrontendEdit {
         let links = [...this.pageIframe.contentDocument.querySelectorAll('a[href]')]
         links.map(l => {
             l.addEventListener('click', (e) => {
+                if(!l.href.length) return null
                 e.preventDefault()
                 FrontendEdit.setIframeUrl(l.href)
             })
@@ -236,6 +294,23 @@ export default class FrontendEdit {
     static set contentPane(value) {
         window._contentPane = value
     }
+
+    static get pageIframeContainer() {
+        return window._pageIframeContainer
+    }
+
+    static set pageIframeContainer(value) {
+        window._pageIframeContainer = value
+    }
+
+    get pageIframeContainer() {
+        return window._pageIframeContainer
+    }
+
+    set pageIframeContainer(value) {
+        window._pageIframeContainer = value
+    }
+
 
     get contentPane() {
         return window._contentPane

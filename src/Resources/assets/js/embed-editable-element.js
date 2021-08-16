@@ -35,6 +35,7 @@ export default class EmbedEditableElement extends EditableElement {
             this.setActive()
             this.openSettingsPane(this)
         })
+
         this.element.addEventListener('mousemove', (e) => {
             if (!this.isEventTarget(e)) return null
             FrontendEdit.getAllElements().map(el => el.classList.remove('hover'))
@@ -46,10 +47,11 @@ export default class EmbedEditableElement extends EditableElement {
         })
         let links = [...this.element.querySelectorAll('a[href]')]
         links.map(l => {
-            l.addEventListener('click', (e) => {
-                e.preventDefault()
-                window.location.href = l.href
-            })
+            l.title = `${l.title ? l.title + " ( " + l.href + " )" : l.href}`
+            l.removeAttribute('href')
+                l.addEventListener('click', (e)=>{
+                    e.preventDefault()
+                })
         })
     }
 

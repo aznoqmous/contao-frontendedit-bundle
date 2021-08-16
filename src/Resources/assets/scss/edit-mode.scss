@@ -13,21 +13,28 @@ body.frontendedit-edit-mode {
     color: $color_white;
     height: $settings_bar_height;
     display: flex;
+    z-index: 1;
+
     > * {
       padding: 1rem;
     }
+
     .toggle-edit-mode {
       @include button;
+
       .view {
         display: none;
       }
+
       .edit {
         display: block;
       }
+
       &.active {
         .view {
           display: block;
         }
+
         .edit {
           display: none;
         }
@@ -37,35 +44,77 @@ body.frontendedit-edit-mode {
     .save,
     .cancel {
       @include button;
-      &:not(.active){
+
+      &:not(.active) {
         display: none;
       }
     }
+
     .page-settings {
       @include button;
     }
+
     .user-settings {
       margin-left: auto;
     }
   }
+
   > .frontendedit-content-edition {
     height: calc(100vh - #{$settings_bar_height});
     display: flex;
 
-    .frontendedit-page-iframe {
+    .frontendedit-page-iframe-container {
       width: 100%;
-      pointer-events: none;
-      opacity: 0.5;
-      &.active {
-        opacity: 1;
-        pointer-events: all;
+      display: flex;
+      justify-content: center;
+      background: $color_dark;
+      .frontendedit-page-iframe {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        opacity: 0.5;
+        background: white;
+
+        &.active {
+          opacity: 1;
+          pointer-events: all;
+        }
+      }
+    }
+
+    .frontendedit-col-resize {
+      position: relative;
+      height: 100%;
+      z-index: 10;
+      > hr {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 5px;
+        border: none;
+        margin: 0;
+        background: black;
+        cursor: col-resize;
       }
     }
 
     .frontendedit-content-pane {
+      z-index: 1;
+      &.resized {
+        > iframe {
+          width: 100%;
+        }
+      }
+
       > * {
-        width: 30vw;
         height: 100%;
+        width: 30vw;
+      }
+
+      > iframe {
+        border: none;
       }
     }
   }

@@ -19,11 +19,12 @@ body.frontendedit {
     &.unsaved {
       outline-color: $color_blue;
     }
+    a {
+      cursor: no-drop;
+    }
   }
   .frontendedit-insert-button {
     @include tinyButton;
-    margin-bottom: 1rem;
-    position: absolute;
     z-index: $z_index;
     transform: translate(0, -50%);
   }

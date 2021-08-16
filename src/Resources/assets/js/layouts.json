@@ -1,0 +1,27 @@
+[
+  {
+    "name": "Desktop (24\")",
+    "width": 1920,
+    "height": 1080
+  },
+  {
+    "name": "Desktop (19\")",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "name": "Laptop (Notebook)",
+    "width": 1536,
+    "height": 864
+  },
+  {
+    "name": "Laptop (15\")",
+    "width": 1366,
+    "height": 768
+  },
+  {
+    "name": "Mobile (Tiny)",
+    "width": 360,
+    "height": 640
+  }
+]
