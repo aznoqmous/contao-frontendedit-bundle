@@ -1,3 +1,4 @@
+@charset "UTF-8";
 body.frontendedit .editable {
   outline: 1px dotted rgba(238, 238, 238, 0.2);
   cursor: pointer;
@@ -17,10 +18,13 @@ body.frontendedit .editable.active {
 body.frontendedit .editable.unsaved {
   outline-color: #2B89A0;
 }
+body.frontendedit .editable.unsaved.new {
+  outline-color: #92CC71;
+}
 body.frontendedit .editable a {
   cursor: no-drop;
 }
-body.frontendedit .frontendedit-insert-button {
+body.frontendedit .frontendedit-article-settings .frontendedit-article-settings-button {
   background: #eee;
   padding: 0.2rem 0.4rem;
   font-size: 0.8rem;
@@ -28,9 +32,24 @@ body.frontendedit .frontendedit-insert-button {
   color: rgba(39, 39, 39, 0.5);
   box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
   z-index: 10;
-  transform: translate(0, -50%);
 }
-body.frontendedit .frontendedit-insert-button:hover {
+body.frontendedit .frontendedit-article-settings .frontendedit-article-settings-button:hover {
+  color: #272727;
+}
+body.frontendedit .editable.active .frontendedit-insert-element-button {
+  display: inline-block;
+}
+body.frontendedit .editable .frontendedit-insert-element-button {
+  background: #eee;
+  padding: 0.2rem 0.4rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  color: rgba(39, 39, 39, 0.5);
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+  display: none;
+}
+body.frontendedit .editable .frontendedit-insert-element-button:hover {
   color: #272727;
 }
 body.frontendedit .floating-settings {
@@ -59,15 +78,6 @@ body.frontendedit .floating-settings > * {
 body.frontendedit .floating-settings > *:hover {
   color: #272727;
 }
-body.frontendedit.hide-scrollbar {
-  -ms-overflow-style: none;
-  /* IE and Edge */
-  scrollbar-width: none;
-  /* Firefox */
-}
-body.frontendedit.hide-scrollbar::-webkit-scrollbar {
-  display: none;
-}
 
 body.frontendedit-edit-mode {
   padding: 0;
@@ -85,6 +95,7 @@ body.frontendedit-edit-mode > .frontendedit-settings {
   height: 3.2rem;
   display: flex;
   z-index: 1;
+  user-select: none;
 }
 body.frontendedit-edit-mode > .frontendedit-settings > * {
   padding: 1rem;
@@ -115,20 +126,32 @@ body.frontendedit-edit-mode > .frontendedit-settings .cancel:not(.active) {
 body.frontendedit-edit-mode > .frontendedit-settings .page-settings {
   cursor: pointer;
 }
-body.frontendedit-edit-mode > .frontendedit-settings .page-iframe-resize select, body.frontendedit-edit-mode > .frontendedit-settings .page-iframe-resize input {
+body.frontendedit-edit-mode > .frontendedit-settings .page-iframe {
+  display: flex;
+}
+body.frontendedit-edit-mode > .frontendedit-settings .page-iframe .page-iframe-hide-scrollbar,
+body.frontendedit-edit-mode > .frontendedit-settings .page-iframe .page-iframe-hide-symfony-debug-toolbar {
+  margin-left: 1rem;
+  display: flex;
+  align-items: center;
+}
+body.frontendedit-edit-mode > .frontendedit-settings .page-iframe select, body.frontendedit-edit-mode > .frontendedit-settings .page-iframe input, body.frontendedit-edit-mode > .frontendedit-settings .page-iframe label {
   background: transparent;
   color: #ccc;
   font-size: 0.8rem;
-  border: 1px solid #474747;
   outline: none;
+  cursor: pointer;
 }
-body.frontendedit-edit-mode > .frontendedit-settings .page-iframe-resize option {
-  color: #272727;
+body.frontendedit-edit-mode > .frontendedit-settings .page-iframe select, body.frontendedit-edit-mode > .frontendedit-settings .page-iframe input {
+  border: 1px solid #474747;
 }
-body.frontendedit-edit-mode > .frontendedit-settings .page-iframe-resize input {
+body.frontendedit-edit-mode > .frontendedit-settings .page-iframe input[type=number] {
   width: 3rem;
 }
-body.frontendedit-edit-mode > .frontendedit-settings .page-iframe-resize span {
+body.frontendedit-edit-mode > .frontendedit-settings .page-iframe option {
+  color: #272727;
+}
+body.frontendedit-edit-mode > .frontendedit-settings .page-iframe span {
   color: #474747;
   font-weight: normal;
 }
@@ -170,19 +193,28 @@ body.frontendedit-edit-mode > .frontendedit-content-edition .frontendedit-col-re
   height: 100%;
   z-index: 10;
 }
-body.frontendedit-edit-mode > .frontendedit-content-edition .frontendedit-col-resize > hr {
+body.frontendedit-edit-mode > .frontendedit-content-edition .frontendedit-col-resize > span {
   position: absolute;
   top: 0;
   left: 0;
   height: 100%;
-  width: 5px;
+  width: 6px;
   border: none;
   margin: 0;
-  background: black;
+  background: #474747;
   cursor: col-resize;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+body.frontendedit-edit-mode > .frontendedit-content-edition .frontendedit-col-resize > span:before {
+  content: "⡇";
+  transform: translate(1px, 0);
+  font-size: 0.8rem;
+  color: #7a7a7a;
 }
 body.frontendedit-edit-mode > .frontendedit-content-edition .frontendedit-content-pane {
-  background: #474747;
+  background: #272727;
   position: relative;
   z-index: 1;
 }
@@ -193,7 +225,7 @@ body.frontendedit-edit-mode > .frontendedit-content-edition .frontendedit-conten
   display: flex;
   justify-content: center;
   align-items: center;
-  color: #ccc;
+  color: #474747;
   position: absolute;
   left: 0;
   top: 0;
@@ -208,4 +240,14 @@ body.frontendedit-edit-mode > .frontendedit-content-edition .frontendedit-conten
 }
 body.frontendedit-edit-mode > .frontendedit-content-edition .frontendedit-content-pane > iframe {
   border: none;
+}
+
+body.hide-scrollbar {
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
+}
+body.hide-scrollbar::-webkit-scrollbar {
+  display: none;
 }

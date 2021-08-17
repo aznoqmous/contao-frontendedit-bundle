@@ -19,14 +19,24 @@
             </strong>
         </div>
 
-        <div class="page-iframe-resize">
-            <select name="layouts">
-                <option value="screen">Screen</option>
-                <option value="custom">Custom</option>
-            </select>
-            <input type="number" name="width" placeholder="width in px">
-            <span>x</span>
-            <input type="number" name="height" placeholder="height in px">
+        <div class="page-iframe">
+            <div class="page-iframe-resize">
+                <select name="layouts">
+                    <option value="screen">Screen</option>
+                    <option value="custom">Custom</option>
+                </select>
+                <input type="number" name="width" placeholder="width in px">
+                <span>x</span>
+                <input type="number" name="height" placeholder="height in px">
+            </div>
+            <div class="page-iframe-hide-scrollbar">
+                <input type="checkbox" name="hideScrollbar" id="hideScrollbar">
+                <label for="hideScrollbar">Hide scrollbar</label>
+            </div>
+            <div class="page-iframe-hide-symfony-debug-toolbar">
+                <input type="checkbox" name="hideSymfonyDebugToolbar" id="hideSymfonyDebugToolbar">
+                <label for="hideSymfonyDebugToolbar">Hide Symfony Toolbar</label>
+            </div>
         </div>
 
         <div class="user-settings">
@@ -44,7 +54,7 @@
             <iframe class="frontendedit-page-iframe" data-src="<?= $this->page->getFrontendUrl() ?>?frontendedit" frameborder="0"></iframe>
         </div>
         <div class="frontendedit-col-resize">
-            <hr>
+            <span></span>
         </div>
         <div class="frontendedit-content-pane">
             <div class="empty-pane">

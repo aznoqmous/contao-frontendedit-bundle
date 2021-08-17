@@ -14,6 +14,7 @@ body.frontendedit-edit-mode {
     height: $settings_bar_height;
     display: flex;
     z-index: 1;
+    user-select: none;
 
     > * {
       padding: 1rem;
@@ -54,27 +55,40 @@ body.frontendedit-edit-mode {
       @include button;
     }
 
-    .page-iframe-resize {
-      select, input {
+    .page-iframe {
+      display: flex;
+
+      .page-iframe-resize {}
+      .page-iframe-hide-scrollbar,
+      .page-iframe-hide-symfony-debug-toolbar {
+        margin-left: 1rem;
+        display: flex;
+        align-items: center;
+      }
+
+      select, input, label {
         background: transparent;
         color: $color_lighter;
         font-size: 0.8rem;
-        border: 1px solid $color_lighter_dark;
         outline: none;
+        cursor: pointer;
+      }
+      select, input {
+        border: 1px solid $color_lighter_dark;
+      }
+      input[type="number"] {
+        width: 3rem;
       }
 
       option {
         color: $color_dark;
       }
 
-      input {
-        width: 3rem;
-      }
-
       span {
         color: $color_lighter_dark;
         font-weight: normal;
       }
+
     }
 
     .user-settings {
@@ -123,21 +137,32 @@ body.frontendedit-edit-mode {
       height: 100%;
       z-index: 10;
 
-      > hr {
+      > span {
         position: absolute;
         top: 0;
         left: 0;
         height: 100%;
-        width: 5px;
+        width: 6px;
         border: none;
         margin: 0;
-        background: black;
+        background: $color_lighter_dark;
         cursor: col-resize;
+
+        display: flex;
+        align-items: center;
+
+        justify-content: center;
+        &:before {
+          content: "⡇";
+          transform: translate(1px, 0);
+          font-size: 0.8rem;
+          color: lighten($color_lighter_dark, 20%);
+        }
       }
     }
 
     .frontendedit-content-pane {
-      background: $color_lighter_dark;
+      background: $color_dark;
       position: relative;
       z-index: 1;
 
@@ -151,7 +176,7 @@ body.frontendedit-edit-mode {
         display: flex;
         justify-content: center;
         align-items: center;
-        color: $color_lighter;
+        color: $color_lighter_dark;
         position: absolute;
         left: 0;
         top: 0;

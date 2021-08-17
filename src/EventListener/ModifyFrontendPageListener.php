@@ -2,6 +2,7 @@
 
 namespace Addictic\ContaoFrontendEditBundle\EventListener;
 
+use Addictic\ContaoFrontendEditBundle\Utils\FrontendEditUtils;
 use Contao\BackendUser;
 use Contao\CoreBundle\ServiceAnnotation\Hook;
 use Contao\FrontendTemplate;
@@ -14,7 +15,7 @@ class ModifyFrontendPageListener
     public function __invoke(string $buffer, string $template): string
     {
         $beUser = BackendUser::getInstance();
-        if(!$beUser->id) return $buffer;
+        if(!FrontendEditUtils::isFrontendEditActiveForCurrentUser()) return $buffer;
 
         if(isset($_GET['frontendedit']) && $template === 'fe_page'){
             global $objPage;

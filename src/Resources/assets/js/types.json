@@ -2,16 +2,25 @@
   {
     "name": "content_element",
     "prefix": "ce_",
-    "table": "tl_content"
-  },
-  {
-    "name": "module",
-    "prefix": "mod_",
-    "table": "tl_module"
+    "table": "tl_content",
+    "do": "article"
   },
   {
     "name": "page",
     "prefix": "page_",
-    "table": "tl_page"
+    "table": "tl_page",
+    "do": "page"
+  },
+  {
+    "name": "article",
+    "prefix": "article_",
+    "table": "tl_article",
+    "do": "article"
+  },
+  {
+    "name": "module",
+    "prefix": "mod_",
+    "table": "tl_module",
+    "do": "themes"
   }
 ]

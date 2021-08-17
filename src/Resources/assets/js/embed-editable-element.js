@@ -4,9 +4,10 @@ import RifleRequest from "./rifle-request";
 
 export default class EmbedEditableElement extends EditableElement {
 
-    constructor(element) {
+    constructor(element, newContent=false) {
         super(element)
-        this.isParent = this.getIsParent()
+        this.newContent = newContent
+        if(this.newContent) this.element.classList.add('new')
 
         this.updateController = new AbortController()
         this.timeout = 100
@@ -18,8 +19,8 @@ export default class EmbedEditableElement extends EditableElement {
         this.buildFloatingSettings()
     }
 
-    getIsParent(){
-        return (this.getChildren().length)
+    get isParent(){
+        return this.type.name === 'article' || (this.getChildren().length)
     }
 
     getChildren(){
@@ -56,7 +57,7 @@ export default class EmbedEditableElement extends EditableElement {
     }
 
     fetchContentElementHtml(formData) {
-        return this.requester.fetch(`/api/frontendedit/render/${this.id}`, {
+        return this.requester.fetch(`/api/frontendedit/render/${this.type.name}/${this.id}`, {
             method: 'POST',
             body: formData,
             signal: this.updateController.signal
@@ -67,6 +68,13 @@ export default class EmbedEditableElement extends EditableElement {
 
     onSettingsPaneSubmit() {
         this.updateElement(null, true)
+            .then(()=>{
+                this.newContent = false
+                this.refreshSiblingElementsHtml()
+                if(this.type.name === 'article') {
+                    FrontendEdit.bindInsertElementButton(this.element.querySelector('.frontendedit-insert-element-button'))
+                }
+            })
         super.onSettingsPaneSubmit()
     }
     onSettingsPaneReload() {
@@ -79,6 +87,7 @@ export default class EmbedEditableElement extends EditableElement {
                 if(!res) return null
                 this.updateContent(res, saved)
                 this.bindElement()
+                this.refreshElementHtml()
             })
     }
 
@@ -94,13 +103,12 @@ export default class EmbedEditableElement extends EditableElement {
         this.element.remove()
         this.element = updatedElement
         if (!saved) this.setUnsaved()
+        if(this.newContent) this.element.classList.add('new')
         return updatedElement
     }
 
     getContentPopupUrl() {
-        if (this.type.name === 'content_element') return `/contao?do=article&table=tl_content&id=${this.id}&popup=1&act=edit&rt=${FrontendEdit.rt}`
-        if (this.type.name === 'module') return `/contao?do=themes&table=tl_module&act=edit&id=${this.id}&popup=1&nb=1&rt=${FrontendEdit.rt}`
-        return null
+        return `/contao?do=${this.type.do}&table=${this.type.table}&id=${this.id}&popup=1&act=edit&rt=${FrontendEdit.rt}`
     }
 
     bindSettingsPane() {
@@ -181,73 +189,100 @@ export default class EmbedEditableElement extends EditableElement {
         this.floatingSettings.appendChild(this.floatingSettings.moveDownButton)
         this.floatingSettings.appendChild(this.floatingSettings.deleteButton)
         this.floatingSettings.appendChild(this.floatingSettings.insertAfterButton)
-        //this.floatingSettings.insertButton = document.createElement('button')
-        //this.floatingSettings.insertButton.href = ""
 
         idocument.body.appendChild(this.floatingSettings)
     }
 
     deleteElement(){
-        fetch(`/contao?do=article&table=${this.type.table}&id=${this.id}&act=delete&rt=${FrontendEdit.rt}`)
+        fetch(`/contao?do=${this.type.do}&table=${this.type.table}&id=${this.id}&act=delete&rt=${FrontendEdit.rt}`)
         this.setUnactive()
         this.element.remove()
         this.settingsPane.remove()
+        FrontendEdit.removeElement(this)
     }
 
     moveElementUp(){
-        let previousElement = this.getPreviousEditableElement(2)
+        let previousElement = this.getPreviousEditableElement()
         if(!previousElement) return false
-        this.element.parentElement.insertBefore(this.element, this.getPreviousEditableElement().element)
+        previousElement.moveElementDown()
         this.refreshFloatingSettings()
-        return fetch(`/contao?do=article&table=tl_content&id=${this.id}&act=cut&mode=1&pid=${previousElement.id}&rt=${FrontendEdit.rt}`)
+        this.updateFirstLastElementClasses()
     }
     moveElementDown(){
         let nextElement = this.getNextEditableElement()
         if(!nextElement) return false
         this.element.parentElement.insertBefore(nextElement.element, this.element)
         this.refreshFloatingSettings()
-        return fetch(`/contao?do=article&table=tl_content&id=${this.id}&act=cut&mode=1&pid=${nextElement.id}&rt=${FrontendEdit.rt}`)
+        this.updateFirstLastElementClasses()
+        let previousElement = this.getPreviousEditableElement()
+        if(previousElement) previousElement.updateFirstLastElementClasses()
+        return fetch(`/contao?do=${this.type.do}&table=${this.type.table}&id=${this.id}&act=cut&mode=1&pid=${nextElement.id}&rt=${FrontendEdit.rt}`)
     }
 
     insertAfter(){
         let contentElement = document.createElement('div')
         contentElement.className = 'editable'
-        let nextEditableElement = this.getNextEditableElement()
-        let nextElement = nextEditableElement ? nextEditableElement.element : null
+        let nextElement = this.getNextElement()
         if(nextElement) this.element.parentElement.insertBefore(contentElement, nextElement)
         else this.element.parentElement.appendChild(contentElement)
-
-        return fetch(`/contao?do=article&table=tl_content&act=create&mode=1&pid=${this.id}&rt=${FrontendEdit.rt}`)
+        this.refreshFloatingSettings()
+        this.updateFirstLastElementClasses()
+        return fetch(`/contao?do=${this.type.do}&table=${this.type.table}&act=create&mode=1&pid=${this.id}&rt=${FrontendEdit.rt}`)
             .then((res)=>{
                 let url = new URL(res.url)
                 let id = url.searchParams.get('id')
                 contentElement.classList.add(`${this.type.prefix}${id}`)
-                let newEditableElement = new EmbedEditableElement(contentElement)
+                let newEditableElement = new EmbedEditableElement(contentElement, true)
                 FrontendEdit.editables.push(newEditableElement)
                 FrontendEdit.editables.map(e => e.setUnactive())
                 newEditableElement.setActive()
                 newEditableElement.setUnsaved()
+                newEditableElement.updateFirstLastElementClasses()
+                newEditableElement.refreshFloatingSettings()
             })
     }
 
     getPreviousEditableElement(index=1){
-        let elements = FrontendEdit.getAllElements()
-        let previousElement = elements[elements.indexOf(this.element) - index]
+        let sameTypeElements = this.getSameTypeElements()
+        let previousElement = sameTypeElements ? sameTypeElements[sameTypeElements.indexOf(this.element) - index] : null
         return previousElement ? previousElement.editable : null
     }
     getNextEditableElement(index=1){
-        let elements = FrontendEdit.getAllElements()
-        let nextElement = elements[elements.indexOf(this.element) + index]
+        let sameTypeElements = this.getSameTypeElements()
+        let nextElement = sameTypeElements ? sameTypeElements[sameTypeElements.indexOf(this.element) + index] : null
         return nextElement ? nextElement.editable : null
+    }
+    getPreviousElement(){
+        let children = [... this.element.parentElement.children]
+        return children[children.indexOf(this.element)-1]
+    }
+    getNextElement(){
+        let children = [... this.element.parentElement.children]
+        return children[children.indexOf(this.element)+1]
+    }
+
+    getSameTypeElements(){
+        let elements = FrontendEdit.getAllElements()
+        return elements ? elements.filter(e =>
+            (e.editable && !e.editable.newContent)
+            && (e.editable && e.editable.type.name === this.type.name )
+            && e.parentElement === this.element.parentElement
+        ) : null
     }
 
     refreshFloatingSettings(){
-        let box = this.element.getBoundingClientRect()
-        let fbox = this.floatingSettings.getBoundingClientRect()
-        let left = box.left - fbox.width
-        left = left > 0 ? left : 0
-        this.floatingSettings.style.left = left + 'px'
-        this.floatingSettings.style.top = box.top + 'px'
+        setTimeout(()=>{
+            let box = this.element.getBoundingClientRect()
+            let fbox = this.floatingSettings.getBoundingClientRect()
+            let left = box.left - fbox.width
+            left = left > 0 ? left : 0
+            this.floatingSettings.style.left = left + 'px'
+            this.floatingSettings.style.top = box.top + 'px'
+        }, 10)
+        if(this.newContent || !this.getPreviousEditableElement()) this.floatingSettings.moveUpButton.style.display = 'none'
+        else this.floatingSettings.moveUpButton.style.display = 'block'
+        if(this.newContent || !this.getNextEditableElement()) this.floatingSettings.moveDownButton.style.display = 'none'
+        else this.floatingSettings.moveDownButton.style.display = 'block'
     }
 
     setActive() {
@@ -265,5 +300,23 @@ export default class EmbedEditableElement extends EditableElement {
         this.settingsPane.remove()
         this.element.remove()
         FrontendEdit.editables.splice(FrontendEdit.editables.indexOf(this), 1)
+    }
+
+    updateFirstLastElementClasses() {
+        if(!this.getPreviousEditableElement()) this.element.classList.add('first')
+        else this.element.classList.remove('first')
+        if(!this.getNextEditableElement()) this.element.classList.add('last')
+        else this.element.classList.remove('last')
+    }
+
+    refreshElementHtml(){
+        this.updateFirstLastElementClasses()
+        this.refreshFloatingSettings()
+    }
+    refreshSiblingElementsHtml(){
+        let previousElement = this.getPreviousEditableElement()
+        if(previousElement) previousElement.refreshElementHtml()
+        let nextElement = this.getNextEditableElement()
+        if(nextElement) nextElement.refreshElementHtml()
     }
 }

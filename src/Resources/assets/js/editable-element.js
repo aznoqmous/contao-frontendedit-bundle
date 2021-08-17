@@ -36,8 +36,8 @@ export default class EditableElement {
     openSettingsPane() {
         if (!this.settingsPane) this.createSettingsPane()
         FrontendEdit.closeAllSettingsPane()
-        FrontendEdit.resize()
         this.settingsPane.style.display = 'block'
+        FrontendEdit.resize()
     }
     getSettingsForm() {
         return this.settingsPane ? this.settingsPane.contentDocument.querySelector('form.tl_edit_form') : null

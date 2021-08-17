@@ -20,9 +20,21 @@
     "height": 768
   },
   {
-    "name": "Mobile (Tiny)",
+    "name": "Mobile (Most Used)",
     "width": 360,
     "height": 640,
+    "hideScrollbar": true
+  },
+  {
+    "name": "Mobile Iphone X",
+    "width": 414,
+    "height": 896,
+    "hideScrollbar": true
+  },
+  {
+    "name": "Samsung S20",
+    "width": 360,
+    "height": 800,
     "hideScrollbar": true
   }
 ]

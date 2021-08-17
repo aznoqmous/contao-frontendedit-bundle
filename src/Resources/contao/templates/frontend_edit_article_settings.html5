@@ -1,0 +1,5 @@
+<div class="frontendedit-article-settings" data-id="<?= $this->id ?>">
+    <span class="frontendedit-article-settings-button">
+        article : <?= $this->title ?>
+    </span>
+</div>

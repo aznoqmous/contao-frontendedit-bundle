@@ -3,6 +3,7 @@
 namespace Addictic\ContaoFrontendEditBundle\Controller;
 
 use Addictic\ContaoFrontendEditBundle\Forms\ContentElementForm;
+use Contao\ArticleModel;
 use Contao\BackendUser;
 use Contao\ContentElement;
 use Contao\ContentModel;
@@ -12,6 +13,9 @@ use Contao\CoreBundle\Controller\AbstractController;
 use Contao\Database;
 use Contao\DC_Table;
 use Contao\FrontendTemplate;
+use Contao\Model;
+use Contao\ModuleArticle;
+use Contao\ModuleModel;
 use Contao\PageModel;
 use Contao\PageTree;
 use Contao\RequestToken;
@@ -35,7 +39,7 @@ use Symfony\Component\Routing\Router;
 class FrontendEditController extends AbstractController
 {
     /**
-     * @Route("/render/{id}", name="render")
+     * @Route("/render/content_element/{id}", name="render_content_element")
      */
     function renderContentElement($id){
         $request = Request::createFromGlobals();
@@ -50,6 +54,23 @@ class FrontendEditController extends AbstractController
 
         $objClass = new $strClass($contentElement, "main");
         return $this->json($objClass->generate());
+    }
+
+    /**
+     * @Route("/render/article/{id}", name="render_article")
+     */
+    function renderArticle($id){
+        $request = Request::createFromGlobals();
+        $params = $request->request->all();
+
+        $article = ArticleModel::findById($id);
+        if(!$article->tstamp) $article->tstamp = time();
+        foreach($article->row() as $key => $value){
+            if(array_key_exists($key, $params)) $article->{$key} = $params[$key];
+        }
+        $article->frontendeditUpdate = true;
+        $module = new ModuleArticle(new ModuleModel($article->row()), "main");
+        return $this->json($module->generate());
     }
 
     /**

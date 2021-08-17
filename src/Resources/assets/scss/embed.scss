@@ -24,16 +24,33 @@ body.frontendedit {
     &.unsaved {
       outline-color: $color_blue;
     }
+    &.unsaved.new {
+      outline-color: $color_green;
+    }
 
     a {
       cursor: no-drop;
     }
   }
 
-  .frontendedit-insert-button {
-    @include tinyButton;
-    z-index: $z_index;
-    transform: translate(0, -50%);
+  .frontendedit-article-settings {
+    .frontendedit-article-settings-button {
+      @include tinyButton;
+      z-index: $z_index;
+    }
+  }
+
+  .editable {
+    &.active {
+      .frontendedit-insert-element-button {
+        display: inline-block;
+      }
+    }
+    .frontendedit-insert-element-button {
+      @include tinyButton;
+      z-index: $z_index;
+      display: none;
+    }
   }
 
   .floating-settings {
@@ -55,13 +72,5 @@ body.frontendedit {
       @include tinyButton;
       box-shadow: none;
     }
-  }
-
-  &.hide-scrollbar {
-    &::-webkit-scrollbar {
-      display: none;
-    }
-    -ms-overflow-style: none; /* IE and Edge */
-    scrollbar-width: none; /* Firefox */
   }
 }
