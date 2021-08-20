@@ -1,3 +1,10 @@
+body.frontendedit-view-mode {
+  [class*="frontendedit"] {
+    display: none !important;
+    pointer-events: none !important;
+  }
+}
+
 body.frontendedit {
   .editable {
     outline: $outline_width dotted rgba($color_white, 0.2);
@@ -18,12 +25,13 @@ body.frontendedit {
     }
 
     &.active {
-      outline-width: 2px;
+      outline-width: #{2*$outline_width};
     }
 
     &.unsaved {
       outline-color: $color_blue;
     }
+
     &.unsaved.new {
       outline-color: $color_green;
     }
@@ -31,21 +39,33 @@ body.frontendedit {
     a {
       cursor: no-drop;
     }
-  }
 
-  .frontendedit-article-settings {
-    .frontendedit-article-settings-button {
-      @include tinyButton;
-      z-index: $z_index;
+    &.active {
+      .frontendedit-article-settings {
+        transform: translate(0, -2px);
+        .frontendedit-article-settings-button {
+          color: $color_dark;
+        }
+      }
+    }
+
+    .frontendedit-article-settings {
+      display: flex;
+      .frontendedit-article-settings-button {
+        @include tinyButton;
+        z-index: $z_index;
+      }
     }
   }
 
+
   .editable {
-    &.active {
+    &:not(.new).active {
       .frontendedit-insert-element-button {
         display: inline-block;
       }
     }
+
     .frontendedit-insert-element-button {
       @include tinyButton;
       z-index: $z_index;
@@ -60,8 +80,8 @@ body.frontendedit {
     z-index: $z_index;
     display: flex;
     flex-direction: column;
-    transform: translate(-#{$outline_width}, -#{$outline_width});
-    box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
+    transform: translate(-#{2*$outline_width}, -#{2*$outline_width});
+    //box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
 
     &.active {
       opacity: 1;

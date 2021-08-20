@@ -1,6 +1,5 @@
-import FrontendEdit from "./frontend-edit";
-import Types from "./types.json";
-
+import FrontendEdit from "../frontend-edit";
+import Types from "../types.json";
 export default class EditableElement {
     constructor(element) {
         this.element = element

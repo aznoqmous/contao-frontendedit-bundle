@@ -28,13 +28,12 @@ class ParseTemplateListener
             $template->cssId .= "data-name=\"$template->title\"";
             $template->hookModified = true;
             $articleSettings = new FrontendTemplate("frontend_edit_article_settings");
-            $insertContentElement = new FrontendTemplate("frontend_edit_insert_content_element");
             foreach(["title", "id"] as $key) {
                 $articleSettings->{$key} = $template->{$key};
             }
             if($template->frontendeditUpdate) $template->elements = [];
             $template->elements = array_merge(
-                [$articleSettings->parse(), $insertContentElement->parse()],
+                [$articleSettings->parse()],
                 $template->elements
             );
         }

@@ -1,7 +1,7 @@
-import FrontendEdit from "./frontend-edit";
+import FrontendEdit from "../frontend-edit";
 import EditableElement from "./editable-element";
-import RifleRequest from "./rifle-request";
-
+import RifleRequest from "../rifle-request";
+import ElementManager from "../element-manager";
 export default class EmbedEditableElement extends EditableElement {
 
     constructor(element, newContent=false) {
@@ -15,7 +15,11 @@ export default class EmbedEditableElement extends EditableElement {
         this.active = false
 
         this.requester = new RifleRequest()
-
+        if(newContent) {
+            this.element.classList.add('new')
+            this.element.classList.add(this.type.default_css_class)
+            this.updateFirstLastElementClasses()
+        }
         this.buildFloatingSettings()
     }
 
@@ -30,7 +34,7 @@ export default class EmbedEditableElement extends EditableElement {
     bindElement() {
         this.element.addEventListener('click', (e) => {
             if (!this.isEventTarget(e)) return null;
-            FrontendEdit.editables.map(el => {
+            ElementManager.elements.map(el => {
                 el.setUnactive()
             })
             this.setActive()
@@ -71,9 +75,6 @@ export default class EmbedEditableElement extends EditableElement {
             .then(()=>{
                 this.newContent = false
                 this.refreshSiblingElementsHtml()
-                if(this.type.name === 'article') {
-                    FrontendEdit.bindInsertElementButton(this.element.querySelector('.frontendedit-insert-element-button'))
-                }
             })
         super.onSettingsPaneSubmit()
     }
@@ -103,7 +104,6 @@ export default class EmbedEditableElement extends EditableElement {
         this.element.remove()
         this.element = updatedElement
         if (!saved) this.setUnsaved()
-        if(this.newContent) this.element.classList.add('new')
         return updatedElement
     }
 
@@ -233,8 +233,8 @@ export default class EmbedEditableElement extends EditableElement {
                 let id = url.searchParams.get('id')
                 contentElement.classList.add(`${this.type.prefix}${id}`)
                 let newEditableElement = new EmbedEditableElement(contentElement, true)
-                FrontendEdit.editables.push(newEditableElement)
-                FrontendEdit.editables.map(e => e.setUnactive())
+                ElementManager.elements.push(newEditableElement)
+                ElementManager.elements.map(e => e.setUnactive())
                 newEditableElement.setActive()
                 newEditableElement.setUnsaved()
                 newEditableElement.updateFirstLastElementClasses()
@@ -242,13 +242,13 @@ export default class EmbedEditableElement extends EditableElement {
             })
     }
 
-    getPreviousEditableElement(index=1){
-        let sameTypeElements = this.getSameTypeElements()
+    getPreviousEditableElement(index=1, dodgeNewContent=true){
+        let sameTypeElements = this.getSameTypeElements(dodgeNewContent)
         let previousElement = sameTypeElements ? sameTypeElements[sameTypeElements.indexOf(this.element) - index] : null
         return previousElement ? previousElement.editable : null
     }
-    getNextEditableElement(index=1){
-        let sameTypeElements = this.getSameTypeElements()
+    getNextEditableElement(index=1, dodgeNewContent=true){
+        let sameTypeElements = this.getSameTypeElements(dodgeNewContent)
         let nextElement = sameTypeElements ? sameTypeElements[sameTypeElements.indexOf(this.element) + index] : null
         return nextElement ? nextElement.editable : null
     }
@@ -261,10 +261,10 @@ export default class EmbedEditableElement extends EditableElement {
         return children[children.indexOf(this.element)+1]
     }
 
-    getSameTypeElements(){
+    getSameTypeElements(dodgeNewContent=true){
         let elements = FrontendEdit.getAllElements()
         return elements ? elements.filter(e =>
-            (e.editable && !e.editable.newContent)
+            !(dodgeNewContent && e.editable && !e.editable.newContent)
             && (e.editable && e.editable.type.name === this.type.name )
             && e.parentElement === this.element.parentElement
         ) : null
@@ -299,13 +299,13 @@ export default class EmbedEditableElement extends EditableElement {
     remove(){
         this.settingsPane.remove()
         this.element.remove()
-        FrontendEdit.editables.splice(FrontendEdit.editables.indexOf(this), 1)
+        ElementManager.elements.splice(ElementManager.elements.indexOf(this), 1)
     }
 
     updateFirstLastElementClasses() {
-        if(!this.getPreviousEditableElement()) this.element.classList.add('first')
+        if(!this.getPreviousEditableElement(1, false)) this.element.classList.add('first')
         else this.element.classList.remove('first')
-        if(!this.getNextEditableElement()) this.element.classList.add('last')
+        if(!this.getNextEditableElement(1, false)) this.element.classList.add('last')
         else this.element.classList.remove('last')
     }
 

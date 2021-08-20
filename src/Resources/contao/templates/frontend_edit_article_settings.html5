@@ -2,4 +2,7 @@
     <span class="frontendedit-article-settings-button">
         article : <?= $this->title ?>
     </span>
+    <span class="frontendedit-insert-element-button">
+        ✚ Insérer un élément de contenu
+    </span>
 </div>

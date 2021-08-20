@@ -1,4 +1,4 @@
-import FrontendEdit from "./frontend-edit";
+import FrontendEdit from "../frontend-edit";
 import EditableElement from "./editable-element";
 
 export default class PageEditableElement extends EditableElement {

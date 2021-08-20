@@ -1,7 +1,9 @@
-import EmbedEditableElement from "./embed-editable-element";
+import PageEditableElement from "./editable-elements/page-editable-element";
 import Cookies from "cookies";
-import PageEditableElement from "./page-editable-element";
 import Layouts from './layouts.json'
+import ElementManager from "./element-manager";
+import ArticleEditableElement from "./editable-elements/article-editable-element";
+import ContentElementEditableElement from "./editable-elements/content-element-editable-element";
 
 export default class FrontendEdit {
 
@@ -11,7 +13,12 @@ export default class FrontendEdit {
         this.rt = null
         this.pageIframe = null
         this.contentPane = null
-        this.editables = []
+
+        this.elementManager = new ElementManager({
+            article: ArticleEditableElement,
+            page: PageEditableElement,
+            content_element: ContentElementEditableElement,
+        })
 
         this.getToken()
             .then(res => {
@@ -55,7 +62,7 @@ export default class FrontendEdit {
 
         this.saveButton = this.settingsBar.querySelector('.save')
         this.saveButton.addEventListener('click', ()=>{
-            this.editables
+            ElementManager.elements
                 .filter(e => !e.saved)
                 .map(e => e.save())
             FrontendEdit.updateButtons()
@@ -90,23 +97,22 @@ export default class FrontendEdit {
              * Editables
              */
             this.pageIframe.contentWindow.addEventListener('scroll', ()=>{
-                this.editables
+                ElementManager.elements
                     .filter(e => e.active)
                     .map(e => {
                         e.refreshFloatingSettings()
                     })
             })
             this.pageIframe.contentWindow.addEventListener('resize', ()=>{
-                this.editables
+                ElementManager.elements
                     .filter(e => e.active)
                     .map(e => {
                         e.refreshFloatingSettings()
                     })
             })
-            this.editables.map(e => {
+            ElementManager.elements.map(e => {
                 if(e.settingsPane) e.settingsPane.remove()
             })
-            if(this.edit) this.bindInsertElementButtons()
         }
 
         this.pageIframe.src = this.pageIframe.getAttribute('data-src')
@@ -278,38 +284,6 @@ export default class FrontendEdit {
         FrontendEdit.pageIframe.style.transform = `scale(${scale})`
         FrontendEdit.saveLayout()
     }
-    static bindInsertElementButton(button){
-        button.addEventListener('click', ()=>{
-            let article = button.parentElement
-            let articleId = article.id.match(/article-(\d{1,})/)[1]
-            let contentElement = document.createElement('div')
-            contentElement.className = 'editable'
-            let editableChildren = article.querySelector('.editable')
-            if(editableChildren) article.insertBefore(contentElement, editableChildren)
-            else article.appendChild(contentElement)
-            return fetch(`/contao?do=article&table=tl_content&act=create&mode=2&pid=${articleId}&rt=${FrontendEdit.rt}`)
-                .then((res)=>{
-                    let url = new URL(res.url)
-                    let id = url.searchParams.get('id')
-                    contentElement.classList.add(`ce_${id}`)
-                    let newEditableElement = new EmbedEditableElement(contentElement, true)
-                    FrontendEdit.editables.push(newEditableElement)
-                    FrontendEdit.editables.map(e => e.setUnactive())
-                    newEditableElement.setActive()
-                    newEditableElement.setUnsaved()
-                    newEditableElement.updateFirstLastElementClasses()
-                    newEditableElement.refreshFloatingSettings()
-                })
-        })
-    }
-
-    bindInsertElementButtons(){
-        let buttons = [...this.pageIframe.contentDocument.querySelectorAll('.frontendedit-insert-element-button')]
-        buttons
-            .map(button => {
-                FrontendEdit.bindInsertElementButton(button)
-            })
-    }
 
     removeSymfonyDebugToolbar(){
         let sfToolbar = document.querySelector('.sf-toolbar')
@@ -347,14 +321,11 @@ export default class FrontendEdit {
             })
         })
 
-        if(this.edit) this.getIframeEditableElements().map(el => {
-            let editable = new EmbedEditableElement(el)
-            this.editables.push(editable)
-        })
+        if(this.edit) ElementManager.addElements(this.getIframeEditableElements())
     }
 
     static updateButtons(){
-        let unsaved = FrontendEdit.editables.filter(e => !e.saved).length
+        let unsaved = ElementManager.elements.filter(e => !e.saved).length
         let saveButton = FrontendEdit.settingsBar.querySelector('.save')
         let cancelButton = FrontendEdit.settingsBar.querySelector('.cancel')
         if(unsaved) {
@@ -370,7 +341,7 @@ export default class FrontendEdit {
     }
 
     static removeElement(editableElement){
-        FrontendEdit.editables = FrontendEdit.editables.filter(el => el !== editableElement)
+        ElementManager.elements = ElementManager.elements.filter(el => el !== editableElement)
         FrontendEdit.updateButtons()
     }
 
@@ -517,22 +488,6 @@ export default class FrontendEdit {
 
     set layoutHeight(value) {
         window._layoutHeight = value
-    }
-
-    static get editables() {
-        return window._editables
-    }
-
-    static set editables(value) {
-        window._editables = value
-    }
-
-    get editables() {
-        return window._editables
-    }
-
-    set editables(value) {
-        window._editables = value
     }
 
     static get hideScrollbarCheckbox() {

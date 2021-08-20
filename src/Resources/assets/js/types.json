@@ -3,7 +3,8 @@
     "name": "content_element",
     "prefix": "ce_",
     "table": "tl_content",
-    "do": "article"
+    "do": "article",
+    "default_css_class": "ce_text"
   },
   {
     "name": "page",
@@ -15,7 +16,8 @@
     "name": "article",
     "prefix": "article_",
     "table": "tl_article",
-    "do": "article"
+    "do": "article",
+    "default_css_class":  "mod_article"
   },
   {
     "name": "module",

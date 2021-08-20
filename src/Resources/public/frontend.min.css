@@ -1,4 +1,9 @@
 @charset "UTF-8";
+body.frontendedit-view-mode [class*=frontendedit] {
+  display: none !important;
+  pointer-events: none !important;
+}
+
 body.frontendedit .editable {
   outline: 1px dotted rgba(238, 238, 238, 0.2);
   cursor: pointer;
@@ -24,19 +29,27 @@ body.frontendedit .editable.unsaved.new {
 body.frontendedit .editable a {
   cursor: no-drop;
 }
-body.frontendedit .frontendedit-article-settings .frontendedit-article-settings-button {
+body.frontendedit .editable.active .frontendedit-article-settings {
+  transform: translate(0, -2px);
+}
+body.frontendedit .editable.active .frontendedit-article-settings .frontendedit-article-settings-button {
+  color: #272727;
+}
+body.frontendedit .editable .frontendedit-article-settings {
+  display: flex;
+}
+body.frontendedit .editable .frontendedit-article-settings .frontendedit-article-settings-button {
   background: #eee;
   padding: 0.2rem 0.4rem;
   font-size: 0.8rem;
   cursor: pointer;
   color: rgba(39, 39, 39, 0.5);
-  box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
   z-index: 10;
 }
-body.frontendedit .frontendedit-article-settings .frontendedit-article-settings-button:hover {
+body.frontendedit .editable .frontendedit-article-settings .frontendedit-article-settings-button:hover {
   color: #272727;
 }
-body.frontendedit .editable.active .frontendedit-insert-element-button {
+body.frontendedit .editable:not(.new).active .frontendedit-insert-element-button {
   display: inline-block;
 }
 body.frontendedit .editable .frontendedit-insert-element-button {
@@ -45,7 +58,6 @@ body.frontendedit .editable .frontendedit-insert-element-button {
   font-size: 0.8rem;
   cursor: pointer;
   color: rgba(39, 39, 39, 0.5);
-  box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
   z-index: 10;
   display: none;
 }
@@ -59,8 +71,7 @@ body.frontendedit .floating-settings {
   z-index: 10;
   display: flex;
   flex-direction: column;
-  transform: translate(-1px, -1px);
-  box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
+  transform: translate(-2px, -2px);
 }
 body.frontendedit .floating-settings.active {
   opacity: 1;
@@ -72,7 +83,6 @@ body.frontendedit .floating-settings > * {
   font-size: 0.8rem;
   cursor: pointer;
   color: rgba(39, 39, 39, 0.5);
-  box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
   box-shadow: none;
 }
 body.frontendedit .floating-settings > *:hover {
