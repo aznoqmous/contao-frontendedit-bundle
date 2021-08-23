@@ -21,7 +21,7 @@ body.frontendedit-edit-mode {
     }
 
     .toggle-edit-mode {
-      @include button;
+      cursor: pointer;
 
       .view {
         display: none;
@@ -44,7 +44,7 @@ body.frontendedit-edit-mode {
 
     .save,
     .cancel {
-      @include button;
+      cursor: pointer;
 
       &:not(.active) {
         display: none;
@@ -52,7 +52,7 @@ body.frontendedit-edit-mode {
     }
 
     .page-settings {
-      @include button;
+      cursor: pointer;
     }
 
     .page-iframe {
@@ -142,7 +142,7 @@ body.frontendedit-edit-mode {
         top: 0;
         left: 0;
         height: 100%;
-        width: 6px;
+        width: $col_resize_width;
         border: none;
         margin: 0;
         background: $color_lighter_dark;
@@ -167,11 +167,24 @@ body.frontendedit-edit-mode {
       z-index: 1;
 
       &.resized {
-        > iframe {
-          width: 100%;
+        > .settings-pane, iframe {
+            width: 100%;
         }
       }
-
+      > .settings-pane {
+        display: flex;
+        flex-direction: column;
+        > .settings-pane-actions {
+          padding-left: $col_resize_width;
+          display: flex;
+          > * {
+            @include button;
+          }
+          > .close {
+            margin-left: auto;
+          }
+        }
+      }
       > .empty-pane {
         display: flex;
         justify-content: center;
@@ -191,8 +204,9 @@ body.frontendedit-edit-mode {
         width: 30vw;
       }
 
-      > iframe {
+      > .settings-pane > iframe {
         border: none;
+        height: 100%;
       }
     }
   }

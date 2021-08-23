@@ -15,7 +15,7 @@ body.frontendedit .editable:empty {
   padding: 1rem;
 }
 body.frontendedit .editable.hover, body.frontendedit .editable.active {
-  outline: 1px solid #eeeeee;
+  outline: 2px solid #eeeeee;
 }
 body.frontendedit .editable.active {
   outline-width: 2px;
@@ -44,10 +44,12 @@ body.frontendedit .editable .frontendedit-article-settings .frontendedit-article
   font-size: 0.8rem;
   cursor: pointer;
   color: rgba(39, 39, 39, 0.5);
+  transition: all 0.2s ease;
   z-index: 10;
 }
 body.frontendedit .editable .frontendedit-article-settings .frontendedit-article-settings-button:hover {
   color: #272727;
+  background: #f3f3f3;
 }
 body.frontendedit .editable:not(.new).active .frontendedit-insert-element-button {
   display: inline-block;
@@ -58,11 +60,13 @@ body.frontendedit .editable .frontendedit-insert-element-button {
   font-size: 0.8rem;
   cursor: pointer;
   color: rgba(39, 39, 39, 0.5);
+  transition: all 0.2s ease;
   z-index: 10;
   display: none;
 }
 body.frontendedit .editable .frontendedit-insert-element-button:hover {
   color: #272727;
+  background: #f3f3f3;
 }
 body.frontendedit .floating-settings {
   position: fixed;
@@ -83,10 +87,29 @@ body.frontendedit .floating-settings > * {
   font-size: 0.8rem;
   cursor: pointer;
   color: rgba(39, 39, 39, 0.5);
+  transition: all 0.2s ease;
   box-shadow: none;
 }
 body.frontendedit .floating-settings > *:hover {
   color: #272727;
+  background: #f3f3f3;
+}
+body.frontendedit .floating-settings .floating-name {
+  background: #eee;
+  padding: 0.2rem 0.4rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  color: rgba(39, 39, 39, 0.5);
+  transition: all 0.2s ease;
+  position: absolute;
+  left: 100%;
+  top: 0;
+  pointer-events: none;
+  white-space: nowrap;
+}
+body.frontendedit .floating-settings .floating-name:hover {
+  color: #272727;
+  background: #f3f3f3;
 }
 
 body.frontendedit-edit-mode {
@@ -228,8 +251,31 @@ body.frontendedit-edit-mode > .frontendedit-content-edition .frontendedit-conten
   position: relative;
   z-index: 1;
 }
-body.frontendedit-edit-mode > .frontendedit-content-edition .frontendedit-content-pane.resized > iframe {
+body.frontendedit-edit-mode > .frontendedit-content-edition .frontendedit-content-pane.resized > .settings-pane, body.frontendedit-edit-mode > .frontendedit-content-edition .frontendedit-content-pane.resized iframe {
   width: 100%;
+}
+body.frontendedit-edit-mode > .frontendedit-content-edition .frontendedit-content-pane > .settings-pane {
+  display: flex;
+  flex-direction: column;
+}
+body.frontendedit-edit-mode > .frontendedit-content-edition .frontendedit-content-pane > .settings-pane > .settings-pane-actions {
+  padding-left: 6px;
+  display: flex;
+}
+body.frontendedit-edit-mode > .frontendedit-content-edition .frontendedit-content-pane > .settings-pane > .settings-pane-actions > * {
+  background: #eee;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  color: rgba(39, 39, 39, 0.5);
+  transition: all 0.2s ease;
+}
+body.frontendedit-edit-mode > .frontendedit-content-edition .frontendedit-content-pane > .settings-pane > .settings-pane-actions > *:hover {
+  color: #272727;
+  background: #f3f3f3;
+}
+body.frontendedit-edit-mode > .frontendedit-content-edition .frontendedit-content-pane > .settings-pane > .settings-pane-actions > .close {
+  margin-left: auto;
 }
 body.frontendedit-edit-mode > .frontendedit-content-edition .frontendedit-content-pane > .empty-pane {
   display: flex;
@@ -248,8 +294,9 @@ body.frontendedit-edit-mode > .frontendedit-content-edition .frontendedit-conten
   height: 100%;
   width: 30vw;
 }
-body.frontendedit-edit-mode > .frontendedit-content-edition .frontendedit-content-pane > iframe {
+body.frontendedit-edit-mode > .frontendedit-content-edition .frontendedit-content-pane > .settings-pane > iframe {
   border: none;
+  height: 100%;
 }
 
 body.hide-scrollbar {

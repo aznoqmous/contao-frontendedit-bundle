@@ -2,6 +2,7 @@ import FrontendEdit from "../frontend-edit";
 import EditableElement from "./editable-element";
 import RifleRequest from "../rifle-request";
 import ElementManager from "../element-manager";
+import Lang from "../lang";
 export default class EmbedEditableElement extends EditableElement {
 
     constructor(element, newContent=false) {
@@ -42,14 +43,21 @@ export default class EmbedEditableElement extends EditableElement {
         })
 
         this.element.addEventListener('mousemove', (e) => {
-            if (!this.isEventTarget(e)) return null
+            if (!this.isEventTarget(e)) {
+                if(!this.element.classList.contains('active')) this.floatingSettings.classList.remove('active')
+                return null
+            }
             FrontendEdit.getAllElements().map(el => el.classList.remove('hover'))
             this.element.classList.add('hover')
-            if(!this.settingsPane) this.createSettingsPane()
+            this.floatingSettings.classList.add('active')
+            this.refreshFloatingSettings()
+            if(!this.settingsPane) this.buildSettingsPane()
         })
         this.element.addEventListener('mouseleave', (e) => {
             this.element.classList.remove('hover')
+            if(!this.element.classList.contains('active')) this.floatingSettings.classList.remove('active')
         })
+
         let links = [...this.element.querySelectorAll('a[href]')]
         links.map(l => {
             l.title = `${l.title ? l.title + " ( " + l.href + " )" : l.href}`
@@ -113,7 +121,18 @@ export default class EmbedEditableElement extends EditableElement {
 
     bindSettingsPane() {
         super.bindSettingsPane();
-        this.bindIframe(this.settingsPane)
+        this.bindIframe(this.settingsIframe)
+    }
+    buildSettingsPaneActions() {
+        super.buildSettingsPaneActions();
+        this.settingsPaneDeleteAction = document.createElement('div')
+        this.settingsPaneDeleteAction.classList.add('delete')
+        this.settingsPaneDeleteAction.innerHTML = Lang.get('delete')
+        this.settingsPaneActions.appendChild(this.settingsPaneDeleteAction)
+        this.settingsPaneDeleteAction.addEventListener('click', ()=>{
+            if(confirm(`Voulez-vous vraiment supprimer l'élément ID ${this.id} ?`)) this.deleteElement()
+        })
+        this.settingsPaneActions.insertBefore(this.settingsPaneDeleteAction, this.settingsPaneCloseAction)
     }
 
     bindIframe(iframe) {
@@ -165,6 +184,7 @@ export default class EmbedEditableElement extends EditableElement {
 
     buildFloatingSettings(){
         let idocument = FrontendEdit.pageIframe.contentDocument
+
         this.floatingSettings = idocument.createElement('div')
         this.floatingSettings.classList.add('floating-settings')
 
@@ -232,8 +252,7 @@ export default class EmbedEditableElement extends EditableElement {
                 let url = new URL(res.url)
                 let id = url.searchParams.get('id')
                 contentElement.classList.add(`${this.type.prefix}${id}`)
-                let newEditableElement = new EmbedEditableElement(contentElement, true)
-                ElementManager.elements.push(newEditableElement)
+                let newEditableElement = ElementManager.addElement(contentElement, true)
                 ElementManager.elements.map(e => e.setUnactive())
                 newEditableElement.setActive()
                 newEditableElement.setUnsaved()
@@ -264,8 +283,9 @@ export default class EmbedEditableElement extends EditableElement {
     getSameTypeElements(dodgeNewContent=true){
         let elements = FrontendEdit.getAllElements()
         return elements ? elements.filter(e =>
-            !(dodgeNewContent && e.editable && !e.editable.newContent)
-            && (e.editable && e.editable.type.name === this.type.name )
+            e.editable
+            && !(dodgeNewContent && e.editable.newContent)
+            && e.editable.type.name === this.type.name
             && e.parentElement === this.element.parentElement
         ) : null
     }
@@ -289,6 +309,7 @@ export default class EmbedEditableElement extends EditableElement {
         super.setActive();
         this.refreshFloatingSettings()
         this.floatingSettings.classList.add('active')
+
     }
 
     setUnactive() {
@@ -300,6 +321,7 @@ export default class EmbedEditableElement extends EditableElement {
         this.settingsPane.remove()
         this.element.remove()
         ElementManager.elements.splice(ElementManager.elements.indexOf(this), 1)
+        if(this.active) FrontendEdit.closeAllSettingsPane()
     }
 
     updateFirstLastElementClasses() {
