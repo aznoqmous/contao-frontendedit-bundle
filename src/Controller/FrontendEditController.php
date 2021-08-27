@@ -34,7 +34,7 @@ use Symfony\Component\Routing\Router;
 /**
  * Class RelationController
  * @Route("/api/frontendedit", defaults={"_scope" = "frontend", "_token_check" = false}, name="api_frontendedit_")
- * @package Addictic\ContaoRelationWizardBundle\Controller
+ * @package Addictic\ContaoFrontendEditBundle\Controller
  */
 class FrontendEditController extends AbstractController
 {
