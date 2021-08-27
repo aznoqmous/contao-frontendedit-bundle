@@ -4,6 +4,7 @@ import Layouts from './layouts.json'
 import ElementManager from "./element-manager";
 import ArticleEditableElement from "./editable-elements/article-editable-element";
 import ContentElementEditableElement from "./editable-elements/content-element-editable-element";
+import Lang from "./lang";
 
 export default class FrontendEdit {
 
@@ -54,6 +55,8 @@ export default class FrontendEdit {
         })
 
         this.toggleMode = this.settingsBar.querySelector('.toggle-edit-mode')
+        this.toggleMode.querySelector('.view').innerHTML = Lang.get('view')
+        this.toggleMode.querySelector('.edit').innerHTML = Lang.get('edit')
         if(this.edit) this.toggleMode.classList.add('active')
         this.toggleMode.addEventListener('click', ()=>{
             Cookies.set('frontendedit', !this.edit)
@@ -61,6 +64,7 @@ export default class FrontendEdit {
         })
 
         this.saveButton = this.settingsBar.querySelector('.save')
+        this.saveButton.children[0].innerHTML = Lang.get('save')
         this.saveButton.addEventListener('click', ()=>{
             ElementManager.elements
                 .filter(e => !e.saved)
@@ -68,6 +72,7 @@ export default class FrontendEdit {
             FrontendEdit.updateButtons()
         })
         this.cancelButton = this.settingsBar.querySelector('.cancel')
+        this.cancelButton.innerHTML = Lang.get('cancel')
     }
 
     buildPageIframe(){
@@ -98,14 +103,14 @@ export default class FrontendEdit {
              */
             this.pageIframe.contentWindow.addEventListener('scroll', ()=>{
                 ElementManager.elements
-                    .filter(e => e.active)
+                    .filter(e => e.floatingSettings.classList.contains('active'))
                     .map(e => {
                         e.refreshFloatingSettings()
                     })
             })
             this.pageIframe.contentWindow.addEventListener('resize', ()=>{
                 ElementManager.elements
-                    .filter(e => e.active)
+                    .filter(e => e.floatingSettings.classList.contains('active'))
                     .map(e => {
                         e.refreshFloatingSettings()
                     })
@@ -123,10 +128,14 @@ export default class FrontendEdit {
             FrontendEdit.resize()
         })
         this.layoutSelect = this.settingsBar.querySelector('.page-iframe-resize [name="layouts"]')
+        let options = [...this.layoutSelect.querySelectorAll('option')]
+        options.map(o => {
+            o.innerHTML = Lang.get(o.value)
+        })
         this.layoutWidth = this.settingsBar.querySelector('[name="width"]')
         this.layoutHeight = this.settingsBar.querySelector('[name="height"]')
 
-        this.layoutSelect.add(new Option(`This device (${window.screen.availWidth})x(${window.screen.availHeight})`, 'device'))
+        this.layoutSelect.add(new Option(`${Lang.get('device')} (${window.screen.availWidth}x${window.screen.availHeight})`, 'device'))
 
         Layouts.map(l => {
             this.layoutSelect.add(new Option(`${l.name} (${l.width}x${l.height})`, l.name))
@@ -146,11 +155,15 @@ export default class FrontendEdit {
         this.layoutHeight.addEventListener('change', resizeFromValues.bind(this))
 
         this.hideScrollbarCheckbox = this.settingsBar.querySelector('[name="hideScrollbar"]')
+        let hideScrollbarLabel = this.hideScrollbarCheckbox.parentElement.querySelector('label')
+        hideScrollbarLabel.innerHTML = Lang.get('hideScrollbar')
         this.hideScrollbarCheckbox.addEventListener('change', ()=>{
             if(this.hideScrollbarCheckbox.checked) FrontendEdit.hideIframeScrollBar()
             else FrontendEdit.showIframeScrollBar()
         })
         this.hideSymfonyDebugToolbarCheckbox = this.settingsBar.querySelector('[name="hideSymfonyDebugToolbar"]')
+        let hideSymfonyDebugToolbarLabel = this.hideSymfonyDebugToolbarCheckbox.parentElement.querySelector('label')
+        hideSymfonyDebugToolbarLabel.innerHTML = Lang.get('hideSymfonyDebugToolbar')
         this.hideSymfonyDebugToolbarCheckbox.addEventListener('change', ()=>{
             if(this.hideSymfonyDebugToolbarCheckbox.checked) FrontendEdit.hideIframeSymfonyDebugToolbar()
             else FrontendEdit.showIframeSymfonyDebugToolbar()
@@ -346,7 +359,7 @@ export default class FrontendEdit {
     }
 
     static closeAllSettingsPane() {
-        [...FrontendEdit.contentPane.querySelectorAll('iframe')].map(el => el.style.display = 'none')
+        [...FrontendEdit.contentPane.querySelectorAll('.settings-pane')].map(el => el.style.display = 'none')
     }
 
     static clearSettingsPage(){

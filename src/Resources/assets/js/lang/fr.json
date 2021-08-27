@@ -1,0 +1,17 @@
+{
+  "view": "Voir",
+  "edit": "Editer",
+  "delete": "Supprimer",
+  "add": "Ajouter",
+  "save": "Enregistrer",
+  "cancel": "Annuler",
+  "hideScrollbar": "Cacher la scrollbar",
+  "hideSymfonyDebugToolbar": "Cacher la barre de debug",
+  "screen": "Plein écran",
+  "custom": "Personnalisé",
+  "device": "Cet appareil",
+  "noElementSelected": "Aucun élément sélectionné",
+  "content_element": "Elément de contenu",
+  "article": "Article",
+  "page": "Page"
+}

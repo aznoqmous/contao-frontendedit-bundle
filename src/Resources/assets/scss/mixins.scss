@@ -1,15 +1,25 @@
-@mixin button {
-  cursor: pointer;
-}
-
 @mixin tinyButton {
   background: $color_white;
   padding: 0.2rem 0.4rem;
   font-size: 0.8rem;
   cursor: pointer;
   color: rgba($color_dark, 0.5);
-  //box-shadow: 0 0 2px rgba(0,0,0,0.2);
+  transition: all 0.2s ease;
   &:hover {
     color: rgba($color_dark, 1);
+    background: lighten($color_white, 2%);
+  }
+}
+
+@mixin button {
+  background: $color_white;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  color: rgba($color_dark, 0.5);
+  transition: all 0.2s ease;
+  &:hover {
+    color: rgba($color_dark, 1);
+    background: lighten($color_white, 2%);
   }
 }

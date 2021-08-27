@@ -26,8 +26,9 @@ export default class ElementManager {
 
     static addElement(htmlElement, newContent=false){
         let elementClass = ElementManager.findClassFromHtmlElement(htmlElement)
-        console.log(elementClass)
-        ElementManager.elements.push(new elementClass(htmlElement, newContent))
+        let newElement = new elementClass(htmlElement, newContent)
+        ElementManager.elements.push(newElement)
+        return newElement
     }
 
     static get elements(){

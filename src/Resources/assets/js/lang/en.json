@@ -1,0 +1,17 @@
+{
+  "view": "View",
+  "edit": "Edit",
+  "delete": "Delete",
+  "add": "Add",
+  "save": "Save",
+  "cancel": "Cancel",
+  "hideScrollbar": "Hide Scrollbar",
+  "hideSymfonyDebugToolbar": "Hide Symfony Toolbar",
+  "screen": "Screen",
+  "custom": "Custom",
+  "device": "This device",
+  "noElementSelected": "No element selected",
+  "content_element": "Content element",
+  "article": "Article",
+  "page": "Page"
+}
