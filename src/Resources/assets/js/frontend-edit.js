@@ -5,6 +5,7 @@ import ElementManager from "./element-manager";
 import ArticleEditableElement from "./editable-elements/article-editable-element";
 import ContentElementEditableElement from "./editable-elements/content-element-editable-element";
 import Lang from "./lang";
+import BackendElement from "./editable-elements/backend-element";
 
 export default class FrontendEdit {
 
@@ -57,7 +58,7 @@ export default class FrontendEdit {
         this.toggleMode = this.settingsBar.querySelector('.toggle-edit-mode')
         this.toggleMode.querySelector('.view').innerHTML = Lang.get('view')
         this.toggleMode.querySelector('.edit').innerHTML = Lang.get('edit')
-        if(this.edit) this.toggleMode.classList.add('active')
+        if(this.edit) this.toggleMode.classList.add('frontendedit-active')
         this.toggleMode.addEventListener('click', ()=>{
             Cookies.set('frontendedit', !this.edit)
             window.location.reload()
@@ -73,14 +74,25 @@ export default class FrontendEdit {
         })
         this.cancelButton = this.settingsBar.querySelector('.cancel')
         this.cancelButton.innerHTML = Lang.get('cancel')
+
+        new BackendElement(this.settingsBar.querySelector('.user-settings'))
     }
 
     buildPageIframe(){
         this.pageIframeContainer = document.querySelector('.frontendedit-page-iframe-container')
         this.pageIframe = document.querySelector('.frontendedit-page-iframe')
+
+        this.reloadIframeButton = this.settingsBar.querySelector('.reload-iframe')
+        this.reloadIframeButton.addEventListener('click', ()=>{
+            FrontendEdit.reloadIframe()
+        })
+        this.reloadIframeButton.classList.add('loading')
+
         this.pageIframe.onload = () => {
+
             this.bindIframe()
-            this.pageIframe.classList.add('active')
+            this.pageIframe.classList.add('frontendedit-active')
+            this.reloadIframeButton.classList.remove('loading')
 
             if(FrontendEdit.hideScrollbarCheckbox.checked) FrontendEdit.hideIframeScrollBar()
             if(FrontendEdit.hideSymfonyDebugToolbarCheckbox.checked) FrontendEdit.hideIframeSymfonyDebugToolbar()
@@ -103,14 +115,14 @@ export default class FrontendEdit {
              */
             this.pageIframe.contentWindow.addEventListener('scroll', ()=>{
                 ElementManager.elements
-                    .filter(e => e.floatingSettings.classList.contains('active'))
+                    .filter(e => e.floatingSettings.classList.contains('frontendedit-active'))
                     .map(e => {
                         e.refreshFloatingSettings()
                     })
             })
             this.pageIframe.contentWindow.addEventListener('resize', ()=>{
                 ElementManager.elements
-                    .filter(e => e.floatingSettings.classList.contains('active'))
+                    .filter(e => e.floatingSettings.classList.contains('frontendedit-active'))
                     .map(e => {
                         e.refreshFloatingSettings()
                     })
@@ -342,14 +354,14 @@ export default class FrontendEdit {
         let saveButton = FrontendEdit.settingsBar.querySelector('.save')
         let cancelButton = FrontendEdit.settingsBar.querySelector('.cancel')
         if(unsaved) {
-            saveButton.classList.add('active')
+            saveButton.classList.add('frontendedit-active')
             saveButton.querySelector('.count').innerHTML = `(${unsaved})`
-            cancelButton.classList.add('active')
+            cancelButton.classList.add('frontendedit-active')
         }
         else {
-            saveButton.classList.remove('active')
+            saveButton.classList.remove('frontendedit-active')
             saveButton.querySelector('.count').innerHTML = ""
-            cancelButton.classList.remove('active')
+            cancelButton.classList.remove('frontendedit-active')
         }
     }
 
@@ -373,6 +385,11 @@ export default class FrontendEdit {
     static setIframeUrl(url){
         FrontendEdit.pageIframe.src = url + '?frontendedit'
         window.history.pushState('', '', url)
+    }
+
+    static reloadIframe(){
+        FrontendEdit.reloadIframeButton.classList.add('loading')
+        FrontendEdit.pageIframe.src = FrontendEdit.pageIframe.src
     }
 
     static get rt() {
@@ -533,5 +550,21 @@ export default class FrontendEdit {
 
     set hideSymfonyDebugToolbarCheckbox(value) {
         window._hideSymfonyDebugToolbarCheckbox = value
+    }
+
+    static get reloadIframeButton() {
+        return window._reloadIframeButton
+    }
+
+    static set reloadIframeButton(value) {
+        window._reloadIframeButton = value
+    }
+
+    get reloadIframeButton() {
+        return window._reloadIframeButton
+    }
+
+    set reloadIframeButton(value) {
+        window._reloadIframeButton = value
     }
 }

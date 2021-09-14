@@ -1,11 +1,11 @@
 import EmbedEditableElement from "./embed-editable-element";
 import FrontendEdit from "../frontend-edit";
 import ElementManager from "../element-manager";
+import Lang from "../lang";
 
 export default class ArticleEditableElement extends EmbedEditableElement {
     constructor(element, newContent = false) {
         super(element, newContent = false);
-        this.bindInsertElementButton()
     }
 
     onSettingsPaneSubmit() {
@@ -13,14 +13,20 @@ export default class ArticleEditableElement extends EmbedEditableElement {
             .then(() => {
                 this.newContent = false
                 this.refreshSiblingElementsHtml()
-                this.bindInsertElementButton()
             })
         super.onSettingsPaneSubmit()
     }
 
+    buildFloatingSettings() {
+        super.buildFloatingSettings();
+        this.floatingSettings.insertElementButton  = document.createElement('button')
+        this.floatingSettings.insertElementButton.innerHTML = '➥'
+        this.floatingSettings.appendChild(this.floatingSettings.insertElementButton)
+        this.bindInsertElementButton()
+    }
+
     bindInsertElementButton() {
-        let button = this.element.querySelector('.frontendedit-insert-element-button')
-        button.addEventListener('click', () => {
+        this.floatingSettings.insertElementButton.addEventListener('click', () => {
             let contentElement = document.createElement('div')
             contentElement.className = 'editable'
             let editableChildren = this.element.querySelector('.editable')

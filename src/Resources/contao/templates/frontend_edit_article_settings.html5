@@ -1,8 +1,5 @@
 <div class="frontendedit-article-settings" data-id="<?= $this->id ?>">
     <span class="frontendedit-article-settings-button">
-        article : <?= $this->title ?>
-    </span>
-    <span class="frontendedit-insert-element-button">
-        ✚ Insérer un élément de contenu
+        Article : <?= $this->title ?>
     </span>
 </div>

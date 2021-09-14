@@ -11,7 +11,9 @@
             <span class="count"></span>
         </div>
         <div class="cancel"></div>
-
+        <div class="reload-iframe">
+            &#x21bb;
+        </div>
         <div class="page-settings page_<?= $this->page->id ?>">
             <span>Page :</span>
             <strong class="page-title">

@@ -13,5 +13,6 @@
   "noElementSelected": "No element selected",
   "content_element": "Content element",
   "article": "Article",
-  "page": "Page"
+  "page": "Page",
+  "insertContentElement": "Insert a new content element"
 }

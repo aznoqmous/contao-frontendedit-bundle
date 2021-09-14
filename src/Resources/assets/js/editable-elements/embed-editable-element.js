@@ -22,14 +22,11 @@ export default class EmbedEditableElement extends EditableElement {
             this.updateFirstLastElementClasses()
         }
         this.buildFloatingSettings()
+        this.buildHierarchy()
     }
 
     get isParent(){
         return this.type.name === 'article' || (this.getChildren().length)
-    }
-
-    getChildren(){
-        return  [...this.element.querySelectorAll(".editable")]
     }
 
     bindElement() {
@@ -44,18 +41,18 @@ export default class EmbedEditableElement extends EditableElement {
 
         this.element.addEventListener('mousemove', (e) => {
             if (!this.isEventTarget(e)) {
-                if(!this.element.classList.contains('active')) this.floatingSettings.classList.remove('active')
+                if(!this.element.classList.contains('frontendedit-active')) this.floatingSettings.classList.remove('frontendedit-active')
                 return null
             }
-            FrontendEdit.getAllElements().map(el => el.classList.remove('hover'))
-            this.element.classList.add('hover')
-            this.floatingSettings.classList.add('active')
+            FrontendEdit.getAllElements().map(el => el.classList.remove('frontendedit-hover'))
+            this.element.classList.add('frontendedit-hover')
+            this.floatingSettings.classList.add('frontendedit-active')
             this.refreshFloatingSettings()
             if(!this.settingsPane) this.buildSettingsPane()
         })
         this.element.addEventListener('mouseleave', (e) => {
-            this.element.classList.remove('hover')
-            if(!this.element.classList.contains('active')) this.floatingSettings.classList.remove('active')
+            this.element.classList.remove('frontendedit-hover')
+            if(!this.element.classList.contains('frontendedit-active')) this.floatingSettings.classList.remove('frontendedit-active')
         })
 
         let links = [...this.element.querySelectorAll('a[href]')]
@@ -105,7 +102,7 @@ export default class EmbedEditableElement extends EditableElement {
         div.innerHTML = html
         let updatedElement = div.querySelector('*')
         if(!updatedElement) return false
-        if(this.element.classList.contains('active')) updatedElement.classList.add('active')
+        if(this.element.classList.contains('frontendedit-active')) updatedElement.classList.add('frontendedit-active')
         updatedElement.classList.add('editable')
         if(this.isParent) this.getChildren().map(child => updatedElement.appendChild(child))
         this.element.parentElement.insertBefore(updatedElement, this.element)
@@ -138,23 +135,25 @@ export default class EmbedEditableElement extends EditableElement {
     bindIframe(iframe) {
         let forms = [...iframe.contentDocument.querySelectorAll('form')]
         forms.map(form => {
-            if(form._frontendeditBound) return null
             let fields = [...form.querySelectorAll('input,select,textarea,checkbox,radio')]
-
-            fields.map(f => f.addEventListener('change', () => {
-                this.updateElement(new FormData(this.getSettingsForm()))
-            }))
-            fields.map(f => f.addEventListener('keyup', () => {
-                this.updateElement(new FormData(this.getSettingsForm()))
-            }))
-
+            fields
+                .filter(f => !f._frontendeditBound)
+                .map(f => {
+                f.addEventListener('change', () => {
+                    this.updateElement(new FormData(this.getSettingsForm()))
+                })
+                f.addEventListener('keyup', () => {
+                    this.updateElement(new FormData(this.getSettingsForm()))
+                })
+                f._frontendeditBound = true
+            })
             this.bindTinyMCE(iframe)
-            form._frontendeditBound = true
+            this.bindListWizard(iframe)
         })
     }
 
     bindTinyMCE(iframe){
-        if(!iframe.contentWindow.tinymce) return null
+        if(!iframe.contentWindow.tinymce || iframe.contentWindow.tinymce._frontendeditBound) return null
         Object.keys(iframe.contentWindow.tinymce.editors).map(k => {
             if(!k) return null;
             let editor = iframe.contentWindow.tinymce.editors[k]
@@ -169,6 +168,41 @@ export default class EmbedEditableElement extends EditableElement {
                 })).observe(tinyIframe.contentDocument.body, {childList: true, subtree: true, characterData: true})
             }, 1000)
         })
+        iframe.contentWindow.tinymce._frontendeditBound = true
+    }
+    bindListWizard(iframe){
+        let copyButtons = [...iframe.contentDocument.querySelectorAll('[data-command="copy"]')]
+        copyButtons
+            .filter(b => !b._frontendeditBound)
+            .map(b => {
+            b.addEventListener('click', ()=>{
+                this.updateElement(new FormData(this.getSettingsForm()))
+                this.bindIframe(iframe)
+            })
+            b._frontendeditBound = true
+        })
+        let deleteButtons = [...iframe.contentDocument.querySelectorAll('[data-command="delete"]')]
+        deleteButtons
+            .filter(b => !b._frontendeditBound)
+            .map(b => {
+                b.addEventListener('click', ()=>{
+                    this.updateElement(new FormData(this.getSettingsForm()))
+                })
+                b._frontendeditBound = true
+            })
+        let dragButtons = [...iframe.contentDocument.querySelectorAll('.drag-handle')]
+        dragButtons
+            .filter(b => !b._frontendeditBound)
+            .map(b => {
+                let updateOnRelease = ()=>{
+                    iframe.contentDocument.removeEventListener('mouseup', updateOnRelease)
+                    this.updateElement(new FormData(this.getSettingsForm()))
+                }
+                b.addEventListener('mousedown', ()=>{
+                    iframe.contentDocument.addEventListener('mouseup', updateOnRelease)
+                })
+                b._frontendeditBound = true
+            })
     }
 
     isEventTarget(e){
@@ -188,6 +222,9 @@ export default class EmbedEditableElement extends EditableElement {
         this.floatingSettings = idocument.createElement('div')
         this.floatingSettings.classList.add('floating-settings')
 
+        /*
+         * Buttons
+         */
         this.floatingSettings.deleteButton = document.createElement('button')
         this.floatingSettings.deleteButton.innerHTML = '✖'
         this.floatingSettings.deleteButton.onclick = ()=>{
@@ -210,9 +247,80 @@ export default class EmbedEditableElement extends EditableElement {
         this.floatingSettings.appendChild(this.floatingSettings.deleteButton)
         this.floatingSettings.appendChild(this.floatingSettings.insertAfterButton)
 
+        /*
+         * Informations
+         */
+        this.floatingInformations =  document.createElement('div')
+        this.floatingInformations.classList.add('floating-infos')
+        this.floatingSettings.appendChild(this.floatingInformations)
+
+        this.floatingName = document.createElement('div')
+        this.floatingName.classList.add('floating-name')
+        this.floatingInformations.appendChild(this.floatingName)
+
+        this.floatingCssClasses = document.createElement('div')
+        this.floatingCssClasses.classList.add('floating-css')
+        this.floatingCssClasses.innerHTML = this.getCSSClasses()
+        this.floatingInformations.appendChild(this.floatingCssClasses)
+
         idocument.body.appendChild(this.floatingSettings)
     }
+    refreshFloatingSettings(){
+        setTimeout(()=>{
+            let box = this.element.getBoundingClientRect()
+            let fbox = this.floatingSettings.getBoundingClientRect()
+            let left = box.left - fbox.width
+            left = left > 0 ? left : 0
+            this.floatingSettings.style.left = left + 'px'
+            this.floatingSettings.style.top = box.top + 'px'
+        }, 10)
+        if(this.newContent || !this.getPreviousEditableElement()) this.floatingSettings.moveUpButton.style.display = 'none'
+        else this.floatingSettings.moveUpButton.style.display = 'block'
+        if(this.newContent || !this.getNextEditableElement()) this.floatingSettings.moveDownButton.style.display = 'none'
+        else this.floatingSettings.moveDownButton.style.display = 'block'
 
+        this.floatingName.innerHTML = Lang.get(this.type.name)
+        this.floatingName.innerHTML = `${Lang.get(this.type.name)} : ${this.name}`
+        this.floatingCssClasses.innerHTML = this.getCSSClasses()
+    }
+
+    buildHierarchy(){
+        this.hierarchyEl = document.createElement('ul')
+        this.hierarchyEl.className = "frontendedit-hierarchy"
+        FrontendEdit.pageIframe.contentDocument.body.appendChild(this.hierarchyEl)
+    }
+    refreshHierarchy(){
+        this.hierarchyEl.innerHTML = ""
+        this.getParents().map(editable => {
+            let item = document.createElement('li')
+            item.innerHTML = `<span>${Lang.get(editable.type.name)} : ${editable.name}</span>`
+            this.hierarchyEl.appendChild(item)
+            item.addEventListener('click', ()=>{
+                editable.setActive()
+                editable.element.scrollIntoView()
+                this.setUnactive()
+            })
+        })
+        let item = document.createElement('li')
+        item.innerHTML = `<strong>${Lang.get(this.type.name)} : ${this.name}</strong>`
+        this.hierarchyEl.appendChild(item)
+    }
+
+    getCSSClasses() {
+        let cssClasses = this.element.className
+            .split(' ')
+            .filter(cssClass => ![
+                    'new',
+                    'unsaved',
+                    'editable',
+                    'frontendedit',
+                    this.type.prefix + '\\d'
+                ]
+                    .some(bannedClass => cssClass.match(new RegExp(bannedClass)))
+            )
+            .join('.')
+        return cssClasses ? `.${cssClasses}` : ''
+    }
     deleteElement(){
         fetch(`/contao?do=${this.type.do}&table=${this.type.table}&id=${this.id}&act=delete&rt=${FrontendEdit.rt}`)
         this.setUnactive()
@@ -290,31 +398,18 @@ export default class EmbedEditableElement extends EditableElement {
         ) : null
     }
 
-    refreshFloatingSettings(){
-        setTimeout(()=>{
-            let box = this.element.getBoundingClientRect()
-            let fbox = this.floatingSettings.getBoundingClientRect()
-            let left = box.left - fbox.width
-            left = left > 0 ? left : 0
-            this.floatingSettings.style.left = left + 'px'
-            this.floatingSettings.style.top = box.top + 'px'
-        }, 10)
-        if(this.newContent || !this.getPreviousEditableElement()) this.floatingSettings.moveUpButton.style.display = 'none'
-        else this.floatingSettings.moveUpButton.style.display = 'block'
-        if(this.newContent || !this.getNextEditableElement()) this.floatingSettings.moveDownButton.style.display = 'none'
-        else this.floatingSettings.moveDownButton.style.display = 'block'
-    }
-
     setActive() {
         super.setActive();
         this.refreshFloatingSettings()
-        this.floatingSettings.classList.add('active')
-
+        this.refreshHierarchy()
+        this.floatingSettings.classList.add('frontendedit-active')
+        this.hierarchyEl.classList.add('frontendedit-active')
     }
 
     setUnactive() {
         super.setUnactive();
-        this.floatingSettings.classList.remove('active')
+        this.floatingSettings.classList.remove('frontendedit-active')
+        this.hierarchyEl.classList.remove('frontendedit-active')
     }
 
     remove(){

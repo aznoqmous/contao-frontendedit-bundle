@@ -8,3 +8,6 @@ services:
   Addictic\ContaoFrontendEditBundle\EventListener\ParseTemplateListener:
     tags:
       - { name: contao.hook, hook: parseTemplate, priority: 0 }
+  Addictic\ContaoFrontendEditBundle\Controller\FrontendEditController:
+    calls:
+      - [setContainer, ['@service_container']]

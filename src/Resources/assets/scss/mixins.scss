@@ -1,18 +1,38 @@
-@mixin tinyButton {
-  background: $color_white;
+@mixin fontFamily {
+  font-family: Sans-serif, sans-serif;
+}
+
+@mixin hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+@mixin visible {
+  opacity: 1;
+  pointer-events: all;
+}
+
+@mixin settings {
+  background: $color_light_grey;
   padding: 0.2rem 0.4rem;
   font-size: 0.8rem;
+}
+
+@mixin tinyButton {
   cursor: pointer;
   color: rgba($color_dark, 0.5);
   transition: all 0.2s ease;
+  border: none;
+  outline: none;
+  @include fontFamily;
   &:hover {
     color: rgba($color_dark, 1);
-    background: lighten($color_white, 2%);
+    background: lighten($color_light_grey, 2%);
   }
 }
 
 @mixin button {
-  background: $color_white;
+  background: $color_light_grey;
   padding: 0.4rem 0.6rem;
   font-size: 0.8rem;
   cursor: pointer;
@@ -20,6 +40,26 @@
   transition: all 0.2s ease;
   &:hover {
     color: rgba($color_dark, 1);
-    background: lighten($color_white, 2%);
+    background: lighten($color_light_grey, 2%);
   }
+}
+
+@mixin boxShadow {
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.16);
+}
+
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg)
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@mixin rotateAnimation {
+  animation-timing-function: linear;
+  animation-name: rotate;
+  animation-duration: 1s;
+  animation-iteration-count: infinite;
 }

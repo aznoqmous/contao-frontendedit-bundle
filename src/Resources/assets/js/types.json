@@ -17,7 +17,7 @@
     "prefix": "article_",
     "table": "tl_article",
     "do": "article",
-    "default_css_class":  "mod_article"
+    "default_css_class": "mod_article"
   },
   {
     "name": "module",

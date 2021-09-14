@@ -13,5 +13,6 @@
   "noElementSelected": "Aucun élément sélectionné",
   "content_element": "Elément de contenu",
   "article": "Article",
-  "page": "Page"
+  "page": "Page",
+  "insertContentElement": "Insérer un élément de contenu"
 }

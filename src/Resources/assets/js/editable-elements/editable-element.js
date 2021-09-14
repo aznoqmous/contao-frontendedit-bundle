@@ -14,9 +14,38 @@ export default class EditableElement {
         this.bindElement()
     }
 
+    get name(){
+        return this.element.getAttribute('data-name')
+    }
+
     getId() {
         let match = this.element.className.match(new RegExp(`${this.type.prefix}(\\d{1,})`))
         return match ? match[1] : null
+    }
+
+    getChildren(){
+        return  [...this.element.querySelectorAll(".editable")]
+    }
+
+    getParent(){
+        let found = null
+        let parent = this.element
+        while(!found && parent)
+        {
+            parent = parent.parentElement
+            if(parent && parent.className.match("editable")) found = parent
+        }
+        return found ? found.editable : null
+    }
+
+    getParents(){
+        let parents = []
+        let current = this
+        while(current){
+            current = current.getParent()
+            if(current) parents.push(current)
+        }
+        return parents.reverse()
     }
 
     getType() {
@@ -174,12 +203,12 @@ export default class EditableElement {
     }
 
     setActive(){
-        this.element.classList.add('active')
+        this.element.classList.add('frontendedit-active')
         this.openSettingsPane()
         this.active = true
     }
     setUnactive(){
-        this.element.classList.remove('active')
+        this.element.classList.remove('frontendedit-active')
         this.active = false
     }
 }

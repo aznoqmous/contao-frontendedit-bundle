@@ -6,6 +6,7 @@ use Addictic\ContaoFrontendEditBundle\Forms\ContentElementForm;
 use Contao\ArticleModel;
 use Contao\BackendUser;
 use Contao\ContentElement;
+use Contao\ContentHeadline;
 use Contao\ContentModel;
 use Contao\ContentText;
 use Contao\Controller;
@@ -20,6 +21,7 @@ use Contao\PageModel;
 use Contao\PageTree;
 use Contao\RequestToken;
 use Contao\System;
+use Spatie\SchemaOrg\Article;
 use Symfony\Cmf\Component\Routing\DynamicRouter;
 use Symfony\Cmf\Component\Routing\Tests\Routing\RequestMatcher;
 use Symfony\Component\Config\Loader\LoaderResolver;
@@ -51,7 +53,6 @@ class FrontendEditController extends AbstractController
             if(array_key_exists($key, $params)) $contentElement->{$key} = $params[$key];
         }
         $strClass = ContentElement::findClass($contentElement->type);
-
         $objClass = new $strClass($contentElement, "main");
         return $this->json($objClass->generate());
     }

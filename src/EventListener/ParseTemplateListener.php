@@ -3,6 +3,7 @@
 namespace Addictic\ContaoFrontendEditBundle\EventListener;
 
 use Addictic\ContaoFrontendEditBundle\Utils\FrontendEditUtils;
+use Contao\Controller;
 use Contao\CoreBundle\ServiceAnnotation\Hook;
 use Contao\FrontendTemplate;
 use Contao\Template;
@@ -14,19 +15,18 @@ class ParseTemplateListener
 {
     public function __invoke($template): void
     {
-        if(!FrontendEditUtils::isFrontendEditActiveForCurrentUser() || $template->hookModified) return;
+        if(!FrontendEditUtils::isFrontendEditActiveForCurrentUser()) return;
         if(
-            $template->typePrefix == 'ce_'
+            $template->typePrefix == 'ce_' || preg_match("/^ce_/", $template->class)
             && $template->type
         ) {
-
+            Controller::loadLanguageFile('default');
             $template->class .= " editable ce_{$template->id}";
-            $template->hookModified = true;
+            $template->cssID .= "data-name=\"{$GLOBALS['TL_LANG']['CTE'][$template->type][0]}\"";
         }
-        if($template->type == 'article'){
+        if($template->type == 'article' && !$template->hookModified){
             $template->class .= " editable article_{$template->id}";
-            $template->cssId .= "data-name=\"$template->title\"";
-            $template->hookModified = true;
+            $template->cssID .= "data-name=\"$template->title\"";
             $articleSettings = new FrontendTemplate("frontend_edit_article_settings");
             foreach(["title", "id"] as $key) {
                 $articleSettings->{$key} = $template->{$key};
@@ -37,5 +37,6 @@ class ParseTemplateListener
                 $template->elements
             );
         }
+        $template->hookModified = true;
     }
 }
