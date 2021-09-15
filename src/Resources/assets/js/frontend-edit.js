@@ -6,6 +6,7 @@ import ArticleEditableElement from "./editable-elements/article-editable-element
 import ContentElementEditableElement from "./editable-elements/content-element-editable-element";
 import Lang from "./lang";
 import BackendElement from "./editable-elements/backend-element";
+import ModuleEditableElement from "./editable-elements/module-editable-element";
 
 export default class FrontendEdit {
 
@@ -20,6 +21,7 @@ export default class FrontendEdit {
             article: ArticleEditableElement,
             page: PageEditableElement,
             content_element: ContentElementEditableElement,
+            module: ModuleEditableElement,
         })
 
         this.getToken()

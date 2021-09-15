@@ -14,5 +14,6 @@
   "content_element": "Elément de contenu",
   "article": "Article",
   "page": "Page",
+  "module": "Module",
   "insertContentElement": "Insérer un élément de contenu"
 }

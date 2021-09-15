@@ -28,9 +28,9 @@ class ParseTemplateListener
         if($template->type == 'article' && !$template->hookModified){
             $this->handleArticle($template);
         }
-        if($template->typePrefix == 'mod_' && !$template->hookModified){
-            $this->handleModule($template);
-        }
+
+        if($template->typePrefix == 'mod_' && !$template->hookModified) $this->handleModule($template);
+        if($template->module && !$template->hookModified) $this->handleModule($template->module->Template);
 
         $template->hookModified = true;
     }

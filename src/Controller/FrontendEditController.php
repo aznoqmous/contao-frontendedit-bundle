@@ -15,12 +15,14 @@ use Contao\Database;
 use Contao\DC_Table;
 use Contao\FrontendTemplate;
 use Contao\Model;
+use Contao\Module;
 use Contao\ModuleArticle;
 use Contao\ModuleModel;
 use Contao\PageModel;
 use Contao\PageTree;
 use Contao\RequestToken;
 use Contao\System;
+use http\Url;
 use Spatie\SchemaOrg\Article;
 use Symfony\Cmf\Component\Routing\DynamicRouter;
 use Symfony\Cmf\Component\Routing\Tests\Routing\RequestMatcher;
@@ -46,6 +48,7 @@ class FrontendEditController extends AbstractController
     function renderContentElement($id){
         $request = Request::createFromGlobals();
         $params = $request->request->all();
+        $this->setGlobalPageFromReferer();
 
         $contentElement = ContentModel::findById($id);
         if(!$contentElement->tstamp) $contentElement->tstamp = time();
@@ -63,6 +66,7 @@ class FrontendEditController extends AbstractController
     function renderArticle($id){
         $request = Request::createFromGlobals();
         $params = $request->request->all();
+        $this->setGlobalPageFromReferer();
 
         $article = ArticleModel::findById($id);
         if(!$article->tstamp) $article->tstamp = time();
@@ -72,6 +76,24 @@ class FrontendEditController extends AbstractController
         $article->frontendeditUpdate = true;
         $module = new ModuleArticle(new ModuleModel($article->row()), "main");
         return $this->json($module->generate());
+    }
+
+    /**
+     * @Route("/render/module/{id}", name="render_module")
+     */
+    function renderModule($id){
+        $request = Request::createFromGlobals();
+        $params = $request->request->all();
+        $this->setGlobalPageFromReferer();
+
+        $module = ModuleModel::findById($id);
+        if(!$module->tstamp) $module->tstamp = time();
+        foreach($module->row() as $key => $value){
+            if(array_key_exists($key, $params)) $module->{$key} = $params[$key];
+        }
+        $strClass = Module::findClass($module->type);
+        $objClass = new $strClass($module, "main");
+        return $this->json($objClass->generate());
     }
 
     /**
@@ -89,4 +111,12 @@ class FrontendEditController extends AbstractController
         return $this->json($rt);
     }
 
+    function setGlobalPageFromReferer(){
+        $request = Request::createFromGlobals();
+        $referer = $request->headers->get('referer');
+        $url = (object) parse_url($referer);
+        $page = (object) $this->get('router')->match($url->path);
+        global $objPage;
+        $objPage = $page->pageModel;
+    }
 }
