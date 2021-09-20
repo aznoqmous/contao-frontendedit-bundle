@@ -403,6 +403,7 @@ export default class FrontendEdit {
     }
 
     static setIframeUrl(url){
+        this.iframeLoadT = Date.now()
         FrontendEdit.pageIframe.src = url + '?frontendedit'
         window.history.pushState('', '', url)
     }
