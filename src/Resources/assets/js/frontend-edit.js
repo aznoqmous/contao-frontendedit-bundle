@@ -76,6 +76,12 @@ export default class FrontendEdit {
         })
         this.cancelButton = this.settingsBar.querySelector('.cancel')
         this.cancelButton.innerHTML = Lang.get('cancel')
+        this.cancelButton.addEventListener('click', ()=>{
+            ElementManager.elements
+                .filter(e => !e.saved)
+                .map(e => e.cancel())
+            FrontendEdit.updateButtons()
+        })
 
         new BackendElement(this.settingsBar.querySelector('.user-settings'))
     }
@@ -370,6 +376,13 @@ export default class FrontendEdit {
     static removeElement(editableElement){
         ElementManager.elements = ElementManager.elements.filter(el => el !== editableElement)
         FrontendEdit.updateButtons()
+    }
+
+    static hideSettingsPane(){
+        FrontendEdit.closeAllSettingsPane()
+        FrontendEdit.pageIframeContainer.style.width = null
+        FrontendEdit.contentPane.style.width = null
+        FrontendEdit.resizePageIframe()
     }
 
     static closeAllSettingsPane() {
