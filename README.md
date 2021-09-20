@@ -6,8 +6,9 @@ Allow your user to use frontend edition inside Contao ``Users`` settings
 Come back to the frontend view of your website, you're good to go !
 
 ## Compatible elements
-- Contao\Articles
-- Contao\ContentElements
+- Contao\Article
+- Contao\ContentElement
+- Contao\Module
 
 To make a custom element from the list above compatible with frontend edition, you must at least include
 ``class="<?= $this->class ?>"`` and ``<?= $this->cssID ?>`` inside your element template.

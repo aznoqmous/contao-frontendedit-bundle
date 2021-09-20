@@ -1,6 +1,7 @@
 import FrontendEdit from "../frontend-edit";
 import Types from "../types.json";
 import Lang from "../lang";
+
 export default class EditableElement {
     constructor(element) {
         this.element = element
@@ -14,7 +15,7 @@ export default class EditableElement {
         this.bindElement()
     }
 
-    get name(){
+    get name() {
         return this.element.getAttribute('data-name')
     }
 
@@ -23,27 +24,26 @@ export default class EditableElement {
         return match ? match[1] : null
     }
 
-    getChildren(){
-        return  [...this.element.querySelectorAll(".editable")]
+    getChildren() {
+        return [...this.element.querySelectorAll(".editable")]
     }
 
-    getParent(){
+    getParent() {
         let found = null
         let parent = this.element
-        while(!found && parent)
-        {
+        while (!found && parent) {
             parent = parent.parentElement
-            if(parent && parent.className.match("editable")) found = parent
+            if (parent && parent.className.match("editable")) found = parent
         }
         return found ? found.editable : null
     }
 
-    getParents(){
+    getParents() {
         let parents = []
         let current = this
-        while(current){
+        while (current) {
             current = current.getParent()
-            if(current) parents.push(current)
+            if (current) parents.push(current)
         }
         return parents.reverse()
     }
@@ -52,7 +52,7 @@ export default class EditableElement {
         let thisType = null
         Types.some(type => {
             if (this.element.className.match(type.prefix)) thisType = type
-            if(thisType) return true
+            if (thisType) return true
         })
         return thisType
     }
@@ -69,8 +69,13 @@ export default class EditableElement {
         this.settingsPane.style.display = 'flex'
         FrontendEdit.resize()
     }
+
     getSettingsForm() {
         return this.settingsIframe ? this.settingsIframe.contentDocument.querySelector('form.tl_edit_form') : null
+    }
+
+    getSettingsFormData() {
+        return new FormData(this.getSettingsForm())
     }
 
     buildSettingsPane() {
@@ -79,7 +84,6 @@ export default class EditableElement {
             this.settingsPane.classList.add('settings-pane')
             this.settingsPane.style.display = 'none'
 
-            this.buildSettingsPaneActions()
 
             this.settingsIframe = document.createElement('iframe')
             this.settingsPane.appendChild(this.settingsIframe)
@@ -87,100 +91,112 @@ export default class EditableElement {
 
             this.updateSettingsPane()
             this.settingsIframe.onload = () => {
-                if(!this.settingsPaneFirstLoad) {
-                    if(this.settingsPaneSubmit){
+                this.buildSettingsPaneActions()
+                this.bindSettingsPane()
+                if (!this.settingsPaneFirstLoad) {
+                    if (this.settingsPaneSubmit) {
                         this.settingsPaneSubmit = false
                         this.onSettingsPaneSubmit()
-                    }
-                    else {
+                    } else {
                         this.onSettingsPaneReload()
                     }
                 }
                 this.saveState()
-                this.bindSettingsPane()
                 this.settingsPaneFirstLoad = false
             }
         }
     }
-    buildSettingsPaneActions(){
+
+    buildSettingsPaneActions() {
+        if (this.settingsPaneActions) this.settingsPaneActions.remove()
         this.settingsPaneActions = document.createElement('div')
         this.settingsPaneActions.classList.add("settings-pane-actions")
-        this.settingsPaneSubmitAction = document.createElement('div')
-        this.settingsPaneSubmitAction.classList.add('save')
-        this.settingsPaneSubmitAction.innerHTML = Lang.get('save')
-        this.settingsPaneActions.appendChild(this.settingsPaneSubmitAction)
-        this.settingsPaneSubmitAction.addEventListener('click', ()=>{
-            this.save()
-        })
 
-        this.settingsPaneCancelAction = document.createElement('div')
-        this.settingsPaneCancelAction.classList.add('cancel')
-        this.settingsPaneCancelAction.innerHTML = Lang.get('cancel')
-        this.settingsPaneActions.appendChild(this.settingsPaneCancelAction)
-        this.settingsPaneCancelAction.addEventListener('click', ()=>{
-            this.loadState()
-        })
+        let buttons = this.settingsIframe.contentDocument.querySelector('#tl_buttons')
+        if (buttons) {
+            buttons.remove()
+            this.settingsPaneSubmitAction = document.createElement('div')
+            this.settingsPaneSubmitAction.classList.add('save')
+            this.settingsPaneSubmitAction.innerHTML = Lang.get('save')
+            this.settingsPaneActions.appendChild(this.settingsPaneSubmitAction)
+            this.settingsPaneSubmitAction.addEventListener('click', () => {
+                this.save()
+            })
+
+            this.settingsPaneCancelAction = document.createElement('div')
+            this.settingsPaneCancelAction.classList.add('cancel')
+            this.settingsPaneCancelAction.innerHTML = Lang.get('cancel')
+            this.settingsPaneActions.appendChild(this.settingsPaneCancelAction)
+            this.settingsPaneCancelAction.addEventListener('click', () => {
+                this.loadState()
+            })
+        }
 
         this.settingsPaneCloseAction = document.createElement('div')
         this.settingsPaneCloseAction.classList.add('close')
         this.settingsPaneCloseAction.innerHTML = '✖'
         this.settingsPaneActions.appendChild(this.settingsPaneCloseAction)
-        this.settingsPaneCloseAction.addEventListener('click', ()=>{
+        this.settingsPaneCloseAction.addEventListener('click', () => {
             FrontendEdit.closeAllSettingsPane()
             this.setUnactive()
         })
 
-        this.settingsPane.appendChild(this.settingsPaneActions)
+        if (this.settingsPane.children.length) this.settingsPane.insertBefore(this.settingsPaneActions, this.settingsPane.children[0])
+        else this.settingsPane.appendChild(this.settingsPaneActions)
+
+        let submit = this.settingsIframe.contentDocument.querySelector('.tl_formbody_submit')
+        if (submit) submit.remove()
+        let sfToolBar = this.settingsIframe.contentDocument.querySelector('.sf-toolbar')
+        if (sfToolBar) sfToolBar.remove()
+        let preview = this.settingsIframe.contentDocument.querySelector('#pal_preview_legend')
+        if (preview) preview.remove()
     }
+
     updateSettingsPane(data = new FormData()) {
-        if(!this.settingsPane) this.buildSettingsPane()
+        if (!this.settingsPane) this.buildSettingsPane()
         this.settingsIframe.src = this.getContentPopupUrl()
     }
 
     bindSettingsPane() {
-        let sfToolBar = this.settingsIframe.contentDocument.querySelector('.sf-toolbar')
-        if(sfToolBar) sfToolBar.remove()
-        let buttons = this.settingsIframe.contentDocument.querySelector('.tl_formbody_submit')
-        if(buttons) buttons.remove()
-        let returnButton = this.settingsIframe.contentDocument.querySelector('#tl_buttons')
-        if(returnButton) returnButton.remove()
-        let preview = this.settingsIframe.contentDocument.querySelector('#pal_preview_legend')
-        if(preview) preview.remove()
-        this.getSettingsForm().addEventListener('submit', (e)=>{
+        if (this.getSettingsForm()) this.getSettingsForm().addEventListener('submit', (e) => {
             this.settingsPaneSubmit = true
         })
     }
 
-    getContentPopupUrl(){
+    getContentPopupUrl() {
         return null
     }
 
-    onSettingsPaneReload(){
+    onSettingsPaneReload() {
         return null
     }
-    onSettingsPaneSubmit(){
+
+    onSettingsPaneSubmit() {
         this.setSaved()
         return null
     }
 
-    save(){
+    save() {
         this.settingsPaneSubmit = true
         this.getSettingsForm().submit()
         this.saveState()
         this.setSaved()
     }
-    setSaved(){
+
+    setSaved() {
         this.element.classList.remove('unsaved')
         this.saved = true
         FrontendEdit.updateButtons()
     }
-    setUnsaved(){
+
+    setUnsaved() {
         this.element.classList.add('unsaved')
         this.saved = false
         FrontendEdit.updateButtons()
     }
 
-    saveState(){
+    saveState() {
+        if (!this.getSettingsForm()) return null
         let data = new FormData(this.getSettingsForm())
         this.savedState = [...data.entries()]
         this.savedState = this.savedState.filter(input =>
@@ -188,13 +204,14 @@ export default class EditableElement {
             && input[0] !== 'FORM_FIELDS[]'
         )
     }
-    loadState(){
+
+    loadState() {
         let form = this.getSettingsForm()
-        if(!this.savedState) return null
+        if (!this.savedState) return null
         this.savedState.map(keyValue => {
             let field = form.querySelector(`[name="${keyValue[0]}"]`)
-            if(field) field.value = keyValue[1]
-            if(field.classList.contains('tl_textarea')) {
+            if (field) field.value = keyValue[1]
+            if (field.classList.contains('tl_textarea')) {
                 let tinyMce = field.parentElement.parentElement.querySelector('iframe')
                 tinyMce.contentDocument.body.innerHTML = field.value
             }
@@ -202,12 +219,13 @@ export default class EditableElement {
         this.setSaved()
     }
 
-    setActive(){
+    setActive() {
         this.element.classList.add('frontendedit-active')
         this.openSettingsPane()
         this.active = true
     }
-    setUnactive(){
+
+    setUnactive() {
         this.element.classList.remove('frontendedit-active')
         this.active = false
     }

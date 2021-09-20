@@ -56,6 +56,6 @@ class ParseTemplateListener
 
     public function handleModule($template){
         $template->class .= " editable mod_{$template->id}";
-        $template->cssID .= "data-name=\"$template->name\"";
+        $template->cssID .= " data-name=\"$template->name\"";
     }
 }

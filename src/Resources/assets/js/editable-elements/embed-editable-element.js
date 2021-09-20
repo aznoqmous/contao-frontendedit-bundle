@@ -76,7 +76,7 @@ export default class EmbedEditableElement extends EditableElement {
     }
 
     onSettingsPaneSubmit() {
-        this.updateElement(null, true)
+        this.updateElement(this.getSettingsFormData(), true)
             .then(()=>{
                 this.newContent = false
                 this.refreshSiblingElementsHtml()
@@ -84,7 +84,7 @@ export default class EmbedEditableElement extends EditableElement {
         super.onSettingsPaneSubmit()
     }
     onSettingsPaneReload() {
-        this.updateElement(new FormData(this.getSettingsForm()), false)
+        this.updateElement(this.getSettingsFormData(), false)
     }
 
     updateElement(data, saved=false) {
@@ -116,10 +116,7 @@ export default class EmbedEditableElement extends EditableElement {
         return `/contao?do=${this.type.do}&table=${this.type.table}&id=${this.id}&popup=1&act=edit&rt=${FrontendEdit.rt}`
     }
 
-    bindSettingsPane() {
-        super.bindSettingsPane();
-        this.bindIframe(this.settingsIframe)
-    }
+
     buildSettingsPaneActions() {
         super.buildSettingsPaneActions();
         this.settingsPaneDeleteAction = document.createElement('div')
@@ -131,6 +128,10 @@ export default class EmbedEditableElement extends EditableElement {
         })
         this.settingsPaneActions.insertBefore(this.settingsPaneDeleteAction, this.settingsPaneCloseAction)
     }
+    bindSettingsPane() {
+        super.bindSettingsPane();
+        this.bindIframe(this.settingsIframe)
+    }
 
     bindIframe(iframe) {
         let forms = [...iframe.contentDocument.querySelectorAll('form')]
@@ -140,10 +141,10 @@ export default class EmbedEditableElement extends EditableElement {
                 .filter(f => !f._frontendeditBound)
                 .map(f => {
                 f.addEventListener('change', () => {
-                    this.updateElement(new FormData(this.getSettingsForm()))
+                    this.updateElement(this.getSettingsFormData())
                 })
                 f.addEventListener('keyup', () => {
-                    this.updateElement(new FormData(this.getSettingsForm()))
+                    this.updateElement(this.getSettingsFormData())
                 })
                 f._frontendeditBound = true
             })
@@ -151,7 +152,6 @@ export default class EmbedEditableElement extends EditableElement {
             this.bindListWizard(iframe)
         })
     }
-
     bindTinyMCE(iframe){
         if(!iframe.contentWindow.tinymce || iframe.contentWindow.tinymce._frontendeditBound) return null
         Object.keys(iframe.contentWindow.tinymce.editors).map(k => {
@@ -164,7 +164,7 @@ export default class EmbedEditableElement extends EditableElement {
             setTimeout(()=>{
                 (new MutationObserver((mutations)=>{
                     textarea.value = tinyIframe.contentDocument.body.innerHTML
-                    this.updateElement(new FormData(this.getSettingsForm()))
+                    this.updateElement(this.getSettingsFormData())
                 })).observe(tinyIframe.contentDocument.body, {childList: true, subtree: true, characterData: true})
             }, 1000)
         })
@@ -176,7 +176,7 @@ export default class EmbedEditableElement extends EditableElement {
             .filter(b => !b._frontendeditBound)
             .map(b => {
             b.addEventListener('click', ()=>{
-                this.updateElement(new FormData(this.getSettingsForm()))
+                this.updateElement(this.getSettingsFormData())
                 this.bindIframe(iframe)
             })
             b._frontendeditBound = true
@@ -186,7 +186,7 @@ export default class EmbedEditableElement extends EditableElement {
             .filter(b => !b._frontendeditBound)
             .map(b => {
                 b.addEventListener('click', ()=>{
-                    this.updateElement(new FormData(this.getSettingsForm()))
+                    this.updateElement(this.getSettingsFormData())
                 })
                 b._frontendeditBound = true
             })
@@ -196,7 +196,7 @@ export default class EmbedEditableElement extends EditableElement {
             .map(b => {
                 let updateOnRelease = ()=>{
                     iframe.contentDocument.removeEventListener('mouseup', updateOnRelease)
-                    this.updateElement(new FormData(this.getSettingsForm()))
+                    this.updateElement(this.getSettingsFormData())
                 }
                 b.addEventListener('mousedown', ()=>{
                     iframe.contentDocument.addEventListener('mouseup', updateOnRelease)
@@ -283,7 +283,6 @@ export default class EmbedEditableElement extends EditableElement {
         this.floatingName.innerHTML = `${Lang.get(this.type.name)} : ${this.name}`
         this.floatingCssClasses.innerHTML = this.getCSSClasses()
     }
-
     buildHierarchy(){
         this.hierarchyEl = document.createElement('ul')
         this.hierarchyEl.className = "frontendedit-hierarchy"
@@ -306,21 +305,9 @@ export default class EmbedEditableElement extends EditableElement {
         this.hierarchyEl.appendChild(item)
     }
 
-    getCSSClasses() {
-        let cssClasses = this.element.className
-            .split(' ')
-            .filter(cssClass => ![
-                    'new',
-                    'unsaved',
-                    'editable',
-                    'frontendedit',
-                    this.type.prefix + '\\d'
-                ]
-                    .some(bannedClass => cssClass.match(new RegExp(bannedClass)))
-            )
-            .join('.')
-        return cssClasses ? `.${cssClasses}` : ''
-    }
+    /*
+     * Floating actions
+     */
     deleteElement(){
         fetch(`/contao?do=${this.type.do}&table=${this.type.table}&id=${this.id}&act=delete&rt=${FrontendEdit.rt}`)
         this.setUnactive()
@@ -328,7 +315,6 @@ export default class EmbedEditableElement extends EditableElement {
         this.settingsPane.remove()
         FrontendEdit.removeElement(this)
     }
-
     moveElementUp(){
         let previousElement = this.getPreviousEditableElement()
         if(!previousElement) return false
@@ -346,7 +332,6 @@ export default class EmbedEditableElement extends EditableElement {
         if(previousElement) previousElement.updateFirstLastElementClasses()
         return fetch(`/contao?do=${this.type.do}&table=${this.type.table}&id=${this.id}&act=cut&mode=1&pid=${nextElement.id}&rt=${FrontendEdit.rt}`)
     }
-
     insertAfter(){
         let contentElement = document.createElement('div')
         contentElement.className = 'editable'
@@ -369,6 +354,9 @@ export default class EmbedEditableElement extends EditableElement {
             })
     }
 
+    /*
+     * Utils
+     */
     getPreviousEditableElement(index=1, dodgeNewContent=true){
         let sameTypeElements = this.getSameTypeElements(dodgeNewContent)
         let previousElement = sameTypeElements ? sameTypeElements[sameTypeElements.indexOf(this.element) - index] : null
@@ -398,6 +386,22 @@ export default class EmbedEditableElement extends EditableElement {
         ) : null
     }
 
+    getCSSClasses() {
+        let cssClasses = this.element.className
+            .split(' ')
+            .filter(cssClass => ![
+                    'new',
+                    'unsaved',
+                    'editable',
+                    'frontendedit',
+                    this.type.prefix + '\\d'
+                ]
+                    .some(bannedClass => cssClass.match(new RegExp(bannedClass)))
+            )
+            .join('.')
+        return cssClasses ? `.${cssClasses}` : ''
+    }
+
     setActive() {
         super.setActive();
         this.refreshFloatingSettings()
@@ -405,7 +409,6 @@ export default class EmbedEditableElement extends EditableElement {
         this.floatingSettings.classList.add('frontendedit-active')
         this.hierarchyEl.classList.add('frontendedit-active')
     }
-
     setUnactive() {
         super.setUnactive();
         this.floatingSettings.classList.remove('frontendedit-active')
