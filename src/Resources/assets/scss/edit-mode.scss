@@ -54,8 +54,11 @@ body.frontendedit-edit-mode {
     .reload-iframe {
       cursor: pointer;
       &.loading {
-        @include rotateAnimation;
+        span {
+          @include rotateAnimation;
+        }
       }
+      small {}
     }
 
     .page-settings {

@@ -58,6 +58,7 @@
 }
 
 @mixin rotateAnimation {
+  display: inline-block;
   animation-timing-function: linear;
   animation-name: rotate;
   animation-duration: 1s;

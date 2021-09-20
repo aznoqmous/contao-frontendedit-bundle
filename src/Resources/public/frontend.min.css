@@ -217,7 +217,8 @@ body.frontendedit-edit-mode > .frontendedit-settings .cancel:not(.frontendedit-a
 body.frontendedit-edit-mode > .frontendedit-settings .reload-iframe {
   cursor: pointer;
 }
-body.frontendedit-edit-mode > .frontendedit-settings .reload-iframe.loading {
+body.frontendedit-edit-mode > .frontendedit-settings .reload-iframe.loading span {
+  display: inline-block;
   animation-timing-function: linear;
   animation-name: rotate;
   animation-duration: 1s;

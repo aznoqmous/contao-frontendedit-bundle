@@ -17,6 +17,8 @@ export default class FrontendEdit {
         this.pageIframe = null
         this.contentPane = null
 
+        this.iframeLoadT = Date.now()
+
         this.elementManager = new ElementManager({
             article: ArticleEditableElement,
             page: PageEditableElement,
@@ -97,6 +99,8 @@ export default class FrontendEdit {
         this.reloadIframeButton.classList.add('loading')
 
         this.pageIframe.onload = () => {
+            let loadTime = this.settingsBar.querySelector('.reload-iframe .loading-time')
+            loadTime.innerHTML = Math.floor((Date.now() - this.iframeLoadT) / 1000 * 10)/10 + "s"
 
             this.bindIframe()
             this.pageIframe.classList.add('frontendedit-active')
@@ -140,6 +144,7 @@ export default class FrontendEdit {
             })
         }
 
+        this.iframeLoadT = Date.now()
         this.pageIframe.src = this.pageIframe.getAttribute('data-src')
     }
 
@@ -403,6 +408,7 @@ export default class FrontendEdit {
     }
 
     static reloadIframe(){
+        this.iframeLoadT = Date.now()
         FrontendEdit.reloadIframeButton.classList.add('loading')
         FrontendEdit.pageIframe.src = FrontendEdit.pageIframe.src
     }
@@ -581,5 +587,21 @@ export default class FrontendEdit {
 
     set reloadIframeButton(value) {
         window._reloadIframeButton = value
+    }
+
+    static get iframeLoadT() {
+        return window._iframeLoadT
+    }
+
+    static set iframeLoadT(value) {
+        window._iframeLoadT = value
+    }
+
+    get iframeLoadT() {
+        return window._iframeLoadT
+    }
+
+    set iframeLoadT(value) {
+        window._iframeLoadT = value
     }
 }

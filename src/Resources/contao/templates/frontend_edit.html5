@@ -12,7 +12,8 @@
         </div>
         <div class="cancel"></div>
         <div class="reload-iframe">
-            &#x21bb;
+            <span>&#x21bb;</span>
+            <small class="loading-time"></small>
         </div>
         <div class="page-settings page_<?= $this->page->id ?>">
             <span>Page :</span>
