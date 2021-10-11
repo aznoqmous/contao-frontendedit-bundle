@@ -28,6 +28,7 @@ export default class ElementManager {
         let elementClass = ElementManager.findClassFromHtmlElement(htmlElement)
         let newElement = new elementClass(htmlElement, newContent)
         ElementManager.elements.push(newElement)
+        if(window._em_onAddElement) window._em_onAddElement.map(cb => cb(newElement))
         return newElement
     }
 
@@ -55,5 +56,10 @@ export default class ElementManager {
     }
     set types(value){
         window._types = value
+    }
+
+    static onAddElement(callback){
+        if(!window._em_onAddElement) window._em_onAddElement = []
+        window._em_onAddElement.push(callback)
     }
 }

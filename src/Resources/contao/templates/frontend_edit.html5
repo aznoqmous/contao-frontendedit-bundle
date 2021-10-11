@@ -53,6 +53,19 @@
 
     </div>
     <div class="frontendedit-content-edition">
+        <div class="frontendedit-content-navigation">
+            <ul class="frontendedit-content-navigation-items">
+                <?php foreach ($this->contentNavigationItems as $contentNavigationItem): ?>
+                    <?= $contentNavigationItem->renderListItem() ?>
+                <?php endforeach; ?>
+            </ul>
+            <div class="frontendedit-content-navigation-content">
+                <?php foreach ($this->contentNavigationItems as $contentNavigationItem): ?>
+                    <?= $contentNavigationItem->renderContent() ?>
+                <?php endforeach; ?>
+            </div>
+        </div>
+
         <div class="frontendedit-page-iframe-container">
             <iframe class="frontendedit-page-iframe" data-src="<?= $this->page->getFrontendUrl() ?>?frontendedit" frameborder="0"></iframe>
         </div>

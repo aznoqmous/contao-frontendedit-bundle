@@ -2,6 +2,7 @@
 
 namespace Addictic\ContaoFrontendEditBundle\EventListener;
 
+use Addictic\ContaoFrontendEditBundle\FrontendEdit\FrontendEdit;
 use Addictic\ContaoFrontendEditBundle\Utils\FrontendEditUtils;
 use Contao\BackendUser;
 use Contao\CoreBundle\ServiceAnnotation\Hook;
@@ -33,6 +34,7 @@ class ModifyFrontendPageListener
             $tpl = new FrontendTemplate("frontend_edit");
             $tpl->page = $objPage;
             $tpl->user = $beUser;
+            $tpl->contentNavigationItems = FrontendEdit::getContentNavigationItems();
             $buffer = preg_replace("/\<body.*?\<\/body\>/s", $tpl->parse(), $buffer);
         }
 

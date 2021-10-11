@@ -1,0 +1,8 @@
+<div class="frontendedit-content-navigation-item-content <?= $this->key ?>" data-key="<?= $this->key ?>">
+    <h1><?= $this->title ?></h1>
+    <div class="content">
+        <ul class="elements">
+
+        </ul>
+    </div>
+</div>

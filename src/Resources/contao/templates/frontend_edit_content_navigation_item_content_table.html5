@@ -1,0 +1,3 @@
+<div class="frontendedit-content-navigation-item-content frontendedit-content-navigation-item-content-table <?= $this->key ?>" data-key="<?= $this->key ?>">
+    <iframe src="/contao?do=<?= $this->key?>&contao-iframe-theme=1" frameborder="0"></iframe>
+</div>

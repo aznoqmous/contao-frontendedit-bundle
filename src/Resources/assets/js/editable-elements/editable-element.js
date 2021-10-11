@@ -23,6 +23,9 @@ export default class EditableElement {
         let match = this.element.className.match(new RegExp(`${this.type.prefix}(\\d{1,})`))
         return match ? match[1] : null
     }
+    getUniqueId(){
+        return this.type.prefix + this.getId()
+    }
 
     getChildren() {
         return [...this.element.querySelectorAll(".editable")]

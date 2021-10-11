@@ -3,6 +3,7 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 module.exports = {
     entry: {
         frontend: "./src/Resources/assets/frontend.js",
+        "contao-iframe-theme": "./src/Resources/assets/contao-iframe-theme.js"
     },
     mode: "production",
     output: {
@@ -25,7 +26,14 @@ module.exports = {
                     { loader: "css-loader" },
                     { loader: "sass-loader" },
                 ]
-            }
+            },
+            {
+                test: /\.(woff|woff2)(\?v=\d+\.\d+\.\d+)?$/,
+                loader: 'url-loader?limit=10000&mimetype=application/font-woff'
+            },
+            {test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/, loader: 'url-loader?limit=10000&mimetype=application/octet-stream'},
+            {test: /\.eot(\?v=\d+\.\d+\.\d+)?$/, loader: 'file-loader'},
+            {test: /\.svg(\?v=\d+\.\d+\.\d+)?$/, loader: "file-loader"}
         ]
     },
     resolve: {

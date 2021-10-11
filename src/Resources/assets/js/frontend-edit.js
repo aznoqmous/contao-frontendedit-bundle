@@ -7,6 +7,7 @@ import ContentElementEditableElement from "./editable-elements/content-element-e
 import Lang from "./lang";
 import BackendElement from "./editable-elements/backend-element";
 import ModuleEditableElement from "./editable-elements/module-editable-element";
+import ElementsList from "./content-navigation/elements-list";
 
 export default class FrontendEdit {
 
@@ -43,6 +44,7 @@ export default class FrontendEdit {
 
         this.buildPageIframe()
         this.buildLayoutSettings()
+        this.buildContentNavigation()
 
         this.contentPane = document.querySelector('.frontendedit-content-pane')
 
@@ -195,6 +197,29 @@ export default class FrontendEdit {
         })
 
         FrontendEdit.loadLayout()
+    }
+
+    buildContentNavigation(){
+
+        this.contentNavigationContainer = document.querySelector('.frontendedit-content-navigation')
+        let items = [...this.contentNavigationContainer.querySelectorAll('.frontendedit-content-navigation-item')]
+        let contents = [...this.contentNavigationContainer.querySelectorAll('.frontendedit-content-navigation-item-content')]
+        items.map(i => i.addEventListener('click', ()=>{
+            i.classList.toggle('active')
+            let active = i.classList.contains('active')
+
+            items.concat(contents)
+                .map(i => i.classList.remove('active'))
+            let selectedContent = contents.filter(c => c.getAttribute('data-key') == i.getAttribute('data-key'))
+
+            if(selectedContent.length && active) {
+                i.classList.add('active')
+                selectedContent[0].classList.add('active')
+            }
+        }))
+
+        let contentNavigationElementsPane = document.querySelector('.frontendedit-content-navigation-item-content.elements')
+        new ElementsList(contentNavigationElementsPane)
     }
 
     static applyLayout(layout){

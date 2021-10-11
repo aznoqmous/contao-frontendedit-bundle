@@ -1,0 +1,4 @@
+<li class="frontendedit-content-navigation-item <?= $this->key ?>" data-key="<?= $this->key ?>">
+    <i class="icon <?= $this->strClass ?>" title="<?= $this->title ?>"></i>
+    <strong><?= $this->title ?></strong>
+</li>

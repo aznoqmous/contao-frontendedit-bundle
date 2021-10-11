@@ -1,0 +1,186 @@
+@import "variables";
+
+html {
+  background: none;
+  background: $color_dark;
+
+  body#top {
+    background: none;
+    color: $color_lighter;
+
+    header#header {
+      display: none;
+    }
+    #container {
+      background: none;
+      padding-top: 0;
+      #left {
+        display: none;
+      }
+      #main {
+        background: none;
+        .content {
+          background: none;
+          .tl_panel, .tl_version_panel {
+            background: none;
+          }
+        }
+      }
+    }
+    .sf-toolbar {
+      display: none !important;
+    }
+  }
+
+}
+
+h1, h2, h3, h4, h5, h6, strong, b, th, a {
+  color: $color_lighter;
+}
+
+.tl_folder_top,
+.tl_folder,
+.tl_file,
+.tl_folder_list,
+.tl_folder_tlist,
+.tl_file_list
+{
+  background: none;
+}
+.tl_folder_top {
+  background: $color_lighter_dark_2;
+}
+.tl_folder_top,
+.tl_folder,
+.tl_file,
+fieldset.tl_tbox,
+fieldset.tl_box {
+  border-top: none;
+  border-color: $color_lighter_dark_2;
+}
+#main .content,
+.tl_panel,
+.tl_version_panel,
+.tl_submit_container
+{
+  background: none;
+  border: none;
+}
+
+
+
+// Search + Filter
+.tl_img_submit {
+  top: unset;
+}
+.tl_search {
+  width: 100%;
+}
+
+// Inputs
+fieldset.tl_tbox>legend, fieldset.tl_box>legend {
+  color: inherit;
+}
+.tl_text, .tl_text_2, .tl_text_3, .tl_text_4, .tl_textarea, .tl_text_unit, .tl_text_trbl, .tl_text_interval,
+.chzn-container-single .chzn-search input
+{
+  background: $color_lighter_dark;
+  color: $color_lighter;
+}
+.serp-preview,
+.serp-preview .title {
+  background: $color_lighter_dark;
+  color: $color_lighter;
+}
+
+// Selects
+.tl_select,
+.tl_mselect,
+.tl_select_column,
+.tl_select_unit,
+.tl_select_interval,
+.chzn-container-single .chzn-single,
+.chzn-container-single .chzn-drop,
+.chzn-container .chzn-results .no-results,
+.chzn-container .chzn-results .group-result
+{
+  background: $color_lighter_dark;
+  color: $color_lighter;
+}
+
+.tl_panel .active,
+.tl_panel_bottom .active,
+#search .active
+{
+  background: $color_lighter_dark;
+}
+
+// Buttons
+#tl_breadcrumb,
+.tl_panel .tl_submit,
+.tl_version_panel .tl_submit,
+.tl_formbody_submit .tl_submit,
+.split-button ul,
+.split-button ul .tl_submit,
+.tl_submit,
+.split-button>button[type=button]
+{
+  border-color: $color_lighter_dark;
+  background: $color_lighter_dark;
+  &:hover {
+    background: $color_lighter_dark_2;
+  }
+}
+.tl_submit:disabled, {
+  border-color: $color_lighter_dark;
+  background: $color_lighter_dark_2;
+}
+.split-button>button[type=button].active,
+.split-button>button[type=button]:hover,
+.split-button ul .tl_submit:hover
+{
+  background: $color_lighter_dark_2;
+}
+.split-button ul:before {
+  border: 6px inset transparent;
+  border-top: 6px solid $color_lighter_dark;
+}
+.split-button ul:after {
+  border: 6px inset transparent;
+  border-top: 6px solid $color_lighter_dark;
+}
+
+// Hovers
+.hover-div:hover,
+.hover-row:hover td,
+.hover-div:hover .limit_toggler,
+.hover-row:hover .limit_toggler
+{
+  background-color: $color_lighter_dark !important;
+}
+
+// Icons
+.tl_right a img {
+  filter: saturate(0.5);
+  &:hover {
+    filter: saturate(1);
+  }
+}
+
+a:hover {
+  color: $color_white;
+}
+
+.tl_metawizard li {
+  background: $color_dark;
+}
+
+// Tables
+.tl_chmod {
+  th {
+    background: $color_lighter_dark;
+  }
+  td {
+    background: none;
+  }
+}
