@@ -52,7 +52,8 @@ export default class FrontendEdit {
         this.colResize.addEventListener('mousedown', ()=>{
             this.editionContainer.classList.add('resizing')
             let resize = (e)=>{
-                FrontendEdit.resize(e.clientX / window.innerWidth)
+                let navigationWidth = this.contentNavigationContainer.getBoundingClientRect().width
+                FrontendEdit.resize((e.clientX - navigationWidth) / (window.innerWidth - navigationWidth))
             }
             document.addEventListener('mousemove', resize)
             document.addEventListener('mouseup', ()=>{
@@ -104,6 +105,7 @@ export default class FrontendEdit {
             let loadTime = this.settingsBar.querySelector('.reload-iframe .loading-time')
             loadTime.innerHTML = Math.floor((Date.now() - this.iframeLoadT) / 1000 * 10)/10 + "s"
 
+            this.elementList.clear()
             this.bindIframe()
             this.pageIframe.classList.add('frontendedit-active')
             this.reloadIframeButton.classList.remove('loading')
@@ -141,6 +143,7 @@ export default class FrontendEdit {
                         e.refreshFloatingSettings()
                     })
             })
+
             ElementManager.elements.map(e => {
                 if(e.settingsPane) e.settingsPane.remove()
             })
@@ -216,10 +219,11 @@ export default class FrontendEdit {
                 i.classList.add('active')
                 selectedContent[0].classList.add('active')
             }
+            FrontendEdit.resize()
         }))
 
         let contentNavigationElementsPane = document.querySelector('.frontendedit-content-navigation-item-content.elements')
-        new ElementsList(contentNavigationElementsPane)
+        this.elementList = new ElementsList(contentNavigationElementsPane)
     }
 
     static applyLayout(layout){

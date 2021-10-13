@@ -1,5 +1,12 @@
 @mixin fontFamily {
-  font-family: Sans-serif, sans-serif;
+  font-family: -apple-system,system-ui,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
+}
+
+@mixin icon($name){
+  @include fa-icon;
+  font-weight: 600;
+  font-family: "Font Awesome 5 Free";
+  content: fa-content($name);
 }
 
 @mixin hidden {

@@ -15,5 +15,9 @@
   "article": "Article",
   "page": "Page",
   "module": "Module",
-  "insertContentElement": "Insérer un élément de contenu"
+  "insertContentElement": "Insérer un élément de contenu",
+  "moveUp": "Déplacer vers le haut",
+  "moveDown": "Déplacer vers le bas",
+  "insertAfter": "Insérer un élément après",
+  "insertElement": "Insérer un élément de contenu"
 }

@@ -94,6 +94,7 @@ export default class EmbedEditableElement extends EditableElement {
                 this.updateContent(res, saved)
                 this.bindElement()
                 this.refreshElementHtml()
+                this.dispatchEvent('updateElement')
             })
     }
 
@@ -226,20 +227,25 @@ export default class EmbedEditableElement extends EditableElement {
          * Buttons
          */
         this.floatingSettings.deleteButton = document.createElement('button')
-        this.floatingSettings.deleteButton.innerHTML = '✖'
+        this.floatingSettings.deleteButton.classList.add('delete')
+        this.floatingSettings.deleteButton.title = Lang.get('delete')
         this.floatingSettings.deleteButton.onclick = ()=>{
             if(confirm(`Voulez-vous vraiment supprimer l'élément ID ${this.id} ?`)) this.deleteElement()
         }
 
         this.floatingSettings.moveUpButton = document.createElement('button')
-        this.floatingSettings.moveUpButton.innerHTML = '⯅'
+        this.floatingSettings.moveUpButton.classList.add('move-up')
+        this.floatingSettings.moveUpButton.title = Lang.get('moveUp')
         this.floatingSettings.moveUpButton.addEventListener('click', ()=>{this.moveElementUp()})
+
         this.floatingSettings.moveDownButton = document.createElement('button')
-        this.floatingSettings.moveDownButton.innerHTML = '⯆'
+        this.floatingSettings.moveDownButton.classList.add('move-down')
+        this.floatingSettings.moveDownButton.title = Lang.get('moveDown')
         this.floatingSettings.moveDownButton.addEventListener('click', ()=>{this.moveElementDown()})
 
         this.floatingSettings.insertAfterButton = document.createElement('button')
-        this.floatingSettings.insertAfterButton.innerHTML = '✚'
+        this.floatingSettings.insertAfterButton.classList.add('insert-after')
+        this.floatingSettings.insertAfterButton.title = Lang.get('insertAfter')
         this.floatingSettings.insertAfterButton.addEventListener('click', ()=>{this.insertAfter()})
 
         this.floatingSettings.appendChild(this.floatingSettings.moveUpButton)
@@ -296,7 +302,10 @@ export default class EmbedEditableElement extends EditableElement {
             this.hierarchyEl.appendChild(item)
             item.addEventListener('click', ()=>{
                 editable.setActive()
-                editable.element.scrollIntoView()
+                editable.element.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center"
+                })
                 this.setUnactive()
             })
         })
@@ -330,6 +339,7 @@ export default class EmbedEditableElement extends EditableElement {
         this.updateFirstLastElementClasses()
         let previousElement = this.getPreviousEditableElement()
         if(previousElement) previousElement.updateFirstLastElementClasses()
+        this.dispatchEvent('move')
         return fetch(`/contao?do=${this.type.do}&table=${this.type.table}&id=${this.id}&act=cut&mode=1&pid=${nextElement.id}&rt=${FrontendEdit.rt}`)
     }
     insertAfter(){

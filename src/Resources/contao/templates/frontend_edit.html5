@@ -1,73 +1,75 @@
 <body class="frontendedit-edit-mode">
-    <div class="frontendedit-settings">
+<div class="frontendedit-settings">
 
-        <div class="toggle-edit-mode">
-            <span class="view"></span>
-            <span class="edit"></span>
-        </div>
+    <div class="toggle-edit-mode">
+        <span class="view"></span>
+        <span class="edit"></span>
+    </div>
 
-        <div class="save">
-            <span></span>
-            <span class="count"></span>
-        </div>
-        <div class="cancel"></div>
-        <div class="reload-iframe">
-            <span>&#x21bb;</span>
-            <small class="loading-time"></small>
-        </div>
-        <div class="page-settings page_<?= $this->page->id ?>">
-            <span>Page :</span>
-            <strong class="page-title">
-                <?= $this->page->title ?>
-            </strong>
-        </div>
+    <div class="save">
+        <span></span>
+        <span class="count"></span>
+    </div>
+    <div class="cancel"></div>
+    <div class="reload-iframe">
+        <span class="fas fa-redo"></span>
+        <small class="loading-time"></small>
+    </div>
+    <div class="page-settings page_<?= $this->page->id ?>">
+        <span>Page :</span>
+        <strong class="page-title">
+            <?= $this->page->title ?>
+        </strong>
+    </div>
 
-        <div class="page-iframe">
-            <div class="page-iframe-resize">
-                <select name="layouts">
-                    <option value="screen"></option>
-                    <option value="custom"></option>
-                </select>
-                <input type="number" name="width" placeholder="width in px">
-                <span>x</span>
-                <input type="number" name="height" placeholder="height in px">
-            </div>
-            <div class="page-iframe-hide-scrollbar">
-                <input type="checkbox" name="hideScrollbar" id="hideScrollbar">
-                <label for="hideScrollbar"></label>
-            </div>
-            <div class="page-iframe-hide-symfony-debug-toolbar">
-                <input type="checkbox" name="hideSymfonyDebugToolbar" id="hideSymfonyDebugToolbar">
-                <label for="hideSymfonyDebugToolbar"></label>
-            </div>
+    <div class="page-iframe">
+        <div class="page-iframe-resize">
+            <select name="layouts">
+                <option value="screen"></option>
+                <option value="custom"></option>
+            </select>
+            <input type="number" name="width" placeholder="width in px">
+            <span>x</span>
+            <input type="number" name="height" placeholder="height in px">
         </div>
+        <div class="page-iframe-hide-scrollbar">
+            <input type="checkbox" name="hideScrollbar" id="hideScrollbar">
+            <label for="hideScrollbar"></label>
+        </div>
+        <div class="page-iframe-hide-symfony-debug-toolbar">
+            <input type="checkbox" name="hideSymfonyDebugToolbar" id="hideSymfonyDebugToolbar">
+            <label for="hideSymfonyDebugToolbar"></label>
+        </div>
+    </div>
 
-        <div class="user-settings">
+    <div class="user-settings">
             <span>
                 <?= $GLOBALS['TL_LANG']['frontendedit']['connected_as'] ?>
             </span>
-            <strong>
-                <?= $this->user->name ?>
-            </strong>
-        </div>
-
+        <strong>
+            <?= $this->user->name ?>
+        </strong>
     </div>
-    <div class="frontendedit-content-edition">
-        <div class="frontendedit-content-navigation">
-            <ul class="frontendedit-content-navigation-items">
-                <?php foreach ($this->contentNavigationItems as $contentNavigationItem): ?>
-                    <?= $contentNavigationItem->renderListItem() ?>
-                <?php endforeach; ?>
-            </ul>
-            <div class="frontendedit-content-navigation-content">
-                <?php foreach ($this->contentNavigationItems as $contentNavigationItem): ?>
-                    <?= $contentNavigationItem->renderContent() ?>
-                <?php endforeach; ?>
-            </div>
+
+</div>
+<div class="frontendedit-content-edition">
+    <div class="frontendedit-content-navigation">
+        <ul class="frontendedit-content-navigation-items">
+            <?php foreach ($this->contentNavigationItems as $contentNavigationItem): ?>
+                <?= $contentNavigationItem->renderListItem() ?>
+            <?php endforeach; ?>
+        </ul>
+        <div class="frontendedit-content-navigation-content">
+            <?php foreach ($this->contentNavigationItems as $contentNavigationItem): ?>
+                <?= $contentNavigationItem->renderContent() ?>
+            <?php endforeach; ?>
         </div>
+    </div>
+    <div class="frontendedit-content">
 
         <div class="frontendedit-page-iframe-container">
-            <iframe class="frontendedit-page-iframe" data-src="<?= $this->page->getFrontendUrl() ?>?frontendedit" frameborder="0"></iframe>
+            <iframe class="frontendedit-page-iframe" data-src="<?= $this->page->getFrontendUrl() ?>?frontendedit"
+                    frameborder="0"></iframe>
         </div>
         <div class="frontendedit-col-resize">
             <span></span>
@@ -78,4 +80,5 @@
             </div>
         </div>
     </div>
+</div>
 </body>

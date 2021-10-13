@@ -21,7 +21,7 @@ body.frontendedit {
     }
 
     &.frontendedit-hover, &.frontendedit-active {
-      outline: #{2*$outline_width} solid rgba($color_white, 1);
+      outline: #{2*$outline_width} solid rgba($color_dark, 0.1);
     }
 
     &.frontendedit-active {
@@ -94,6 +94,21 @@ body.frontendedit {
     > button {
       @include tinyButton;
       box-shadow: none;
+      &.delete:before {
+        @include icon($fa-var-times);
+      }
+      &.move-up:before {
+        @include icon($fa-var-caret-up);
+      }
+      &.move-down:before {
+        @include icon($fa-var-caret-down);
+      }
+      &.insert-after:before {
+        @include icon($fa-var-plus);
+      }
+      &.insert-element:before {
+        @include icon($fa-var-edit);
+      }
     }
 
     &.active {

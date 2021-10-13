@@ -12,6 +12,7 @@ export default class EditableElement {
         this.settingsPaneFirstLoad = true
         this.saved = true
         this.savedState = null
+        this.events = {}
         this.bindElement()
     }
 
@@ -228,10 +229,21 @@ export default class EditableElement {
         this.element.classList.add('frontendedit-active')
         this.openSettingsPane()
         this.active = true
+        this.dispatchEvent('active')
     }
 
     setUnactive() {
         this.element.classList.remove('frontendedit-active')
         this.active = false
+        this.dispatchEvent('unactive')
+    }
+
+    addEventListener(name, callback){
+        if(!this.events[name]) this.events[name] = []
+        this.events[name].push(callback)
+    }
+    dispatchEvent(name, ...args){
+        if(!this.events[name]) return null;
+        this.events[name].map(cb => cb(args))
     }
 }

@@ -20,7 +20,8 @@ export default class ArticleEditableElement extends EmbedEditableElement {
     buildFloatingSettings() {
         super.buildFloatingSettings();
         this.floatingSettings.insertElementButton  = document.createElement('button')
-        this.floatingSettings.insertElementButton.innerHTML = '➥'
+        this.floatingSettings.insertElementButton.classList.add('insert-element')
+        this.floatingSettings.insertElementButton.title = Lang.get('insertElement')
         this.floatingSettings.appendChild(this.floatingSettings.insertElementButton)
         this.bindInsertElementButton()
     }

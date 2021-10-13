@@ -10,10 +10,10 @@ if (TL_MODE == 'FE' && FrontendEditUtils::isFrontendEditActiveForCurrentUser()) 
 
     $GLOBALS['TL_LANG']['MOD']['elements'] = ['Eléments de contenu', ""];
 
-    \Addictic\ContaoFrontendEditBundle\FrontendEdit\FrontendEdit::addContentNavigationItem("elements", "frontend_edit_content_navigation_elements", "icon-list");
-    \Addictic\ContaoFrontendEditBundle\FrontendEdit\FrontendEdit::addContentavigationItemTable("page", "icon-tree");
-    \Addictic\ContaoFrontendEditBundle\FrontendEdit\FrontendEdit::addContentavigationItemTable("files", "icon-folder");
-    \Addictic\ContaoFrontendEditBundle\FrontendEdit\FrontendEdit::addContentavigationItemTable("settings", "icon-equalizer");
+    \Addictic\ContaoFrontendEditBundle\FrontendEdit\FrontendEdit::addContentNavigationItem("elements", "frontend_edit_content_navigation_elements", "fas fa-stream");
+    \Addictic\ContaoFrontendEditBundle\FrontendEdit\FrontendEdit::addContentavigationItemTable("page", "fas fa-sitemap");
+    \Addictic\ContaoFrontendEditBundle\FrontendEdit\FrontendEdit::addContentavigationItemTable("files", "fas fa-folder");
+    \Addictic\ContaoFrontendEditBundle\FrontendEdit\FrontendEdit::addContentavigationItemTable("settings", "fas fa-cogs");
 }
 
 if(TL_MODE == "BE" && $_GET['contao-iframe-theme']){

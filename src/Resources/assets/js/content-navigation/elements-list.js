@@ -1,5 +1,6 @@
 import FrontendEdit from "../frontend-edit";
 import ElementManager from "../element-manager";
+import {list} from "postcss";
 
 export default class ElementsList {
     constructor(container) {
@@ -26,6 +27,10 @@ export default class ElementsList {
         })
     }
 
+    get listItems(){
+        return [...this.listElement.querySelectorAll('li')]
+    }
+
     createElementListItem(element){
         let parent = this.listElement
         if(element.getParent()) {
@@ -33,7 +38,39 @@ export default class ElementsList {
         }
 
         let listItem = document.createElement('li')
-        listItem.innerHTML = element.name
+        let listItemName = document.createElement('span')
+        listItemName.innerHTML = element.name
+        listItem.className = element.element.className
+        element.navigationItem = listItem
+        listItem.appendChild(listItemName)
+
+        let nextElement = element.getNextEditableElement()
+            let previousElement = element.getPreviousEditableElement()
+        if(nextElement && nextElement.navigationItem && previousElement.navigationItem){
+            parent.insertBefore(previousElement.navigationItem, listItem)
+        }
+        listItemName.addEventListener('click', (e)=>{
+            ElementManager.elements.map(e => e.setUnactive())
+            element.setActive()
+            element.element.scrollIntoView({
+                behavior: "smooth",
+                block: "center"
+            })
+        })
+        element.addEventListener('updateElement', ()=>{
+            listItemName.innerHTML = element.name
+            listItem.className = element.element.className
+        })
+        element.addEventListener('move', ()=>{
+            let previousElement = element.getPreviousEditableElement()
+            parent.insertBefore(previousElement.navigationItem, listItem)
+        })
+        element.addEventListener('active', ()=>{
+            listItem.classList.add('active')
+        })
+        element.addEventListener('unactive', ()=>{
+            listItem.classList.remove('active')
+        })
         parent.appendChild(listItem)
 
         let childContainer = document.createElement('ul')
