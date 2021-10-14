@@ -24,6 +24,7 @@ use Contao\RequestToken;
 use Contao\System;
 use http\Url;
 use Spatie\SchemaOrg\Article;
+use Symfony\Cmf\Bundle\RoutingBundle\Tests\Fixtures\App\Document\Content;
 use Symfony\Cmf\Component\Routing\DynamicRouter;
 use Symfony\Cmf\Component\Routing\Tests\Routing\RequestMatcher;
 use Symfony\Component\Config\Loader\LoaderResolver;
@@ -58,6 +59,63 @@ class FrontendEditController extends AbstractController
         $strClass = ContentElement::findClass($contentElement->type);
         $objClass = new $strClass($contentElement, "main");
         return $this->json($objClass->generate());
+    }
+
+    /**
+     * @Route("/movedown/content_element/{id}", name="move_content_element")
+     */
+    function moveContentElementDown($id){
+        $request = Request::createFromGlobals();
+        $params = $request->request->all();
+        $moveAfter = $params['moveAfter'];
+        $moveAfterNext = $params['moveAfterNext'];
+        $cascade = filter_var($params['cascade'], FILTER_VALIDATE_BOOLEAN);
+        $element = ContentModel::findById($id);
+        $afterElement =  ContentModel::findById($moveAfter);
+        if($moveAfterNext) $afterNextElement =  ContentModel::findById($moveAfterNext);
+
+        $siblings = ContentModel::findByPid($element->pid, ['order' => 'sorting']);
+        $sortedSiblings = [];
+        foreach($siblings as $sibling){
+            $sortedSiblings[] = $sibling;
+        }
+
+        $elementSiblings = ContentModel::findBy([
+            "pid = {$element->pid}",
+            "sorting >= {$element->sorting}",
+            "sorting < {$afterElement->sorting}"
+        ], [], [
+           'order' => "sorting"
+        ]);
+
+        $moveAfterLastElement = $afterElement;
+        if($cascade){
+            $moveAfterSiblings = ContentModel::findBy([
+                "pid = {$element->pid}",
+                "sorting >= {$afterElement->sorting}",
+                $afterNextElement ? "sorting < {$afterNextElement->sorting}" : "1"
+            ], [], [
+                'order' => "sorting DESC",
+                'limit' => 1
+            ]);
+            $moveAfterLastElement = $moveAfterSiblings[0];
+        }
+
+        $resortedSiblings = [];
+        $elementSiblingsIds = $elementSiblings->fetchEach('id');
+        foreach($sortedSiblings as $sibling){
+            if(!in_array($sibling->id, $elementSiblingsIds)) $resortedSiblings[] = $sibling;
+            if($sibling->id == $moveAfterLastElement->id){
+                foreach($elementSiblings as $elementSibling) $resortedSiblings[] = $elementSibling;
+            }
+        }
+
+        foreach($resortedSiblings as $key => $sibling){
+            $sibling->sorting = $key;
+            $sibling->save();
+        }
+
+        return $this->json(true);
     }
 
     /**

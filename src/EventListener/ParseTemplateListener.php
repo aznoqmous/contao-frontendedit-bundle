@@ -37,6 +37,8 @@ class ParseTemplateListener
 
     public function handleContentElement($template){
         Controller::loadLanguageFile('default');
+        Controller::loadLanguageFile('modules');
+        Controller::loadLanguageFile('tl_content');
         $template->class .= " editable ce_{$template->id}";
         $template->cssID .= "data-name=\"{$GLOBALS['TL_LANG']['CTE'][$template->type][0]}\"";
     }

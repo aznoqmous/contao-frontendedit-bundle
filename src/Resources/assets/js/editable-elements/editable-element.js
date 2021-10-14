@@ -142,6 +142,7 @@ export default class EditableElement {
         this.settingsPaneActions.appendChild(this.settingsPaneCloseAction)
         this.settingsPaneCloseAction.addEventListener('click', () => {
             FrontendEdit.hideSettingsPane()
+            this.setUnactive()
         })
 
         if (this.settingsPane.children.length) this.settingsPane.insertBefore(this.settingsPaneActions, this.settingsPane.children[0])

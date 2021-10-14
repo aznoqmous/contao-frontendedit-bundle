@@ -52,10 +52,6 @@ export default class ElementsList {
         listItemName.addEventListener('click', (e)=>{
             ElementManager.elements.map(e => e.setUnactive())
             element.setActive()
-            element.element.scrollIntoView({
-                behavior: "smooth",
-                block: "center"
-            })
         })
         element.addEventListener('updateElement', ()=>{
             listItemName.innerHTML = element.name

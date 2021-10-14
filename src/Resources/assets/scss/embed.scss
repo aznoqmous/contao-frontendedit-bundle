@@ -45,19 +45,19 @@ body.frontendedit {
       .frontendedit-article-settings {
         transform: translate(1.2rem, -2px);
       }
-    }
-    &.frontendedit-active {
-      .frontendedit-article-settings {
-        .frontendedit-article-settings-button {
-          color: $color_dark;
-        }
+      .frontendedit-article-settings-button {
+        opacity: 0;
+        pointer-events: none;
       }
     }
 
     .frontendedit-article-settings {
       display: flex;
+      position: absolute;
       .frontendedit-article-settings-button {
-        @include tinyButton;
+        @include button;
+        padding: 0.2rem 0.4rem;
+        transition: none;
         z-index: $z_index;
       }
     }

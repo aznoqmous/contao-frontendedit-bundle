@@ -418,6 +418,12 @@ export default class EmbedEditableElement extends EditableElement {
         this.refreshHierarchy()
         this.floatingSettings.classList.add('frontendedit-active')
         this.hierarchyEl.classList.add('frontendedit-active')
+        let top = this.element.getBoundingClientRect().top
+        let offsetY = 200
+        FrontendEdit.pageIframe.contentWindow.scrollTo({
+            behavior: "smooth",
+            top: FrontendEdit.pageIframe.contentWindow.scrollY + top - offsetY
+        })
     }
     setUnactive() {
         super.setUnactive();
