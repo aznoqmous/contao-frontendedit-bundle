@@ -6148,6 +6148,13 @@ body.frontendedit .editable.unsaved {
 body.frontendedit .editable.unsaved.new {
   outline-color: #92CC71;
 }
+body.frontendedit .editable img {
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -o-user-drag: none;
+  user-drag: none;
+}
 body.frontendedit .editable a {
   cursor: no-drop;
 }
