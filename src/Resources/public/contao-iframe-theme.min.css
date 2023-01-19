@@ -1,0 +1,179 @@
+html {
+  background: none;
+  background: #272727;
+}
+html body#top {
+  background: none;
+  color: #ccc;
+}
+html body#top header#header {
+  display: none;
+}
+html body#top #container {
+  background: none;
+  padding-top: 0;
+}
+html body#top #container #left {
+  display: none;
+}
+html body#top #container #main {
+  background: none;
+}
+html body#top #container #main .content {
+  background: none;
+}
+html body#top #container #main .content .tl_panel, html body#top #container #main .content .tl_version_panel {
+  background: none;
+}
+html body#top .sf-toolbar {
+  display: none !important;
+}
+
+h1, h2, h3, h4, h5, h6, strong, b, th, a {
+  color: #ccc;
+}
+
+.tl_folder_top,
+.tl_folder,
+.tl_file,
+.tl_folder_list,
+.tl_folder_tlist,
+.tl_file_list {
+  background: none;
+}
+
+.tl_folder_top {
+  background: #666;
+}
+
+.tl_folder_top,
+.tl_folder,
+.tl_file,
+fieldset.tl_tbox,
+fieldset.tl_box {
+  border-top: none;
+  border-color: #666;
+}
+
+#main .content,
+.tl_panel,
+.tl_version_panel,
+.tl_submit_container {
+  background: none;
+  border: none;
+}
+
+.tl_img_submit {
+  top: unset;
+}
+
+.tl_search {
+  width: 100%;
+}
+
+fieldset.tl_tbox > legend, fieldset.tl_box > legend {
+  color: inherit;
+}
+
+.tl_text, .tl_text_2, .tl_text_3, .tl_text_4, .tl_textarea, .tl_text_unit, .tl_text_trbl, .tl_text_interval,
+.chzn-container-single .chzn-search input {
+  background: #474747;
+  color: #ccc;
+}
+
+.serp-preview,
+.serp-preview .title {
+  background: #474747;
+  color: #ccc;
+}
+
+.tl_select,
+.tl_mselect,
+.tl_select_column,
+.tl_select_unit,
+.tl_select_interval,
+.chzn-container-single .chzn-single,
+.chzn-container-single .chzn-drop,
+.chzn-container .chzn-results .no-results,
+.chzn-container .chzn-results .group-result {
+  background: #474747;
+  color: #ccc;
+}
+
+.tl_panel .active,
+.tl_panel_bottom .active,
+#search .active {
+  background: #474747;
+}
+
+#tl_breadcrumb,
+.tl_panel .tl_submit,
+.tl_version_panel .tl_submit,
+.tl_formbody_submit .tl_submit,
+.split-button ul,
+.split-button ul .tl_submit,
+.tl_submit,
+.split-button > button[type=button] {
+  border-color: #474747;
+  background: #474747;
+}
+#tl_breadcrumb:hover,
+.tl_panel .tl_submit:hover,
+.tl_version_panel .tl_submit:hover,
+.tl_formbody_submit .tl_submit:hover,
+.split-button ul:hover,
+.split-button ul .tl_submit:hover,
+.tl_submit:hover,
+.split-button > button[type=button]:hover {
+  background: #666;
+}
+
+.tl_submit:disabled {
+  border-color: #474747;
+  background: #666;
+}
+
+.split-button > button[type=button].active,
+.split-button > button[type=button]:hover,
+.split-button ul .tl_submit:hover {
+  background: #666;
+}
+
+.split-button ul:before {
+  border: 6px inset transparent;
+  border-top: 6px solid #474747;
+}
+
+.split-button ul:after {
+  border: 6px inset transparent;
+  border-top: 6px solid #474747;
+}
+
+.hover-div:hover,
+.hover-row:hover td,
+.hover-div:hover .limit_toggler,
+.hover-row:hover .limit_toggler {
+  background-color: #474747 !important;
+}
+
+.tl_right a img {
+  filter: saturate(0.5);
+}
+.tl_right a img:hover {
+  filter: saturate(1);
+}
+
+a:hover {
+  color: #f6f6f6;
+}
+
+.tl_metawizard li {
+  background: #272727;
+}
+
+.tl_chmod th {
+  background: #474747;
+}
+.tl_chmod td {
+  background: none;
+}
